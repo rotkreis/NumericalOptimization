@@ -53,46 +53,28 @@ test_array = np.array([0.1,0.2,0.3,0.4,0.5,0.6,0.7],float)
 #print watson_der(test_array)
 #print scipy.optimize.approx_fprime(test_array, watson,0.000000001)
 
-def r_der(i,x,k,l):
+def r_second_der(i,x,k,l):
     return - 2 * t(i) ** ( k + l - 2)
 
 def watson_hess(x):
     hess = np.zeros((len(x),len(x)))
-#    # hess[0,0]
-#    sum = 0
-#    for i in range(1, 29 + 1):
-#        sum += 2 * r_der(i,x,1) ** 2 + 2 * r(i) * r_der(i,x,1,1)
-#    sum += 2 + 12 * x[0] ** 2 - 4 * x[1] + 4
-#    hess[0,0] = sum
-#    # hess[0,1], hess[1,0]
-#    sum = 0
-#    for i in range(1, 29 + 1):
-#        sum += 2 * r_der(i,x,2) * r_der(i,x,1) + 2 * r(i) * r_der(i,x,1,2)
-#    sum += -4 * x[0]
-#    hess[0,1] = hess[1,0] = sum
-#    # hess[1,1]
-#    sum = 0
-#    for i in range(1, 29 + 1):
-#        sum += 2 * r_der(i,x,2) ** 2 + 2 * r(i) * r_der(i,x,2,2)
-#    sum += 2
-#    hess[1,1] = sum
     for k in range(0,len(x)):
         for l in range(0, len(x)):
             sum = 0
             for i in range(1,29 + 1):
-                sum += (2 * r_der(i,x,k) * r_der(i, x, l) +
-                        2 * r(i) * r_der(i,x,k,l))
+                sum += (2 * r_der(i,x,k+1) * r_der(i, x, l+1) +
+                        2 * r(i,x) * r_second_der(i,x,k+1,l+1))
+            hess[k,l] = hess[l,k] = sum
     hess[0,0] += 2 + 12 * x[0] ** 2 - 4 * x[1] + 4
     hess[0,1] += -4 * x[0]
     hess[1,0] = hess[0,1]
     hess[1,1] += 2
     return hess
-
-
-
-
-
-
+print watson_hess(test_array * 20)
+x0 = np.zeros(6)
+res = scipy.optimize.minimize(watson, x0, method = 'Newton-CG',
+               jac = watson_der, hess = watson_hess,
+               options = {'xtol':1e-5, 'disp':True})
 
 
 

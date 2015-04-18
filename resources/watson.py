@@ -70,8 +70,24 @@ def watson_hess(x):
     hess[1,0] = hess[0,1]
     hess[1,1] += 2
     return hess
-#print watson_hess(test_array * 20)
+print watson_hess(test_array * 20)
 x0 = np.zeros(6)
-#res = scipy.optimize.minimize(watson, x0, method = 'Newton-CG',
-#               jac = watson_der, hess = watson_hess,
-#               options = {'xtol':1e-7, 'disp':True})
+res = scipy.optimize.minimize(watson, x0, method = 'Newton-CG',
+               jac = watson_der, hess = watson_hess,
+               options = {'xtol':1e-5, 'disp':True})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -106,7 +106,7 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     print iter
     print f(xk)
     return f(xk)
-#print BFGS(watson, np.zeros(6), watson_der, watson_hess)
+print BFGS(watson, np.zeros(9), watson_der, watson_hess)
 
 
 def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
@@ -137,7 +137,7 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     print iter
     print f(xk)
     return f(xk)
-print DFP(watson, np.zeros(9), watson_der, watson_hess, 1e-5)
+#print DFP(watson, np.zeros(9), watson_der, watson_hess, 1e-5)
 
 
 

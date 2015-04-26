@@ -1,9 +1,10 @@
 from scipy.optimize.linesearch import line_search_wolfe2 as line_search
+from scipy.optimize.linesearch import line_search_BFGS,line_search_armijo, line_search_wolfe1
 import numpy as np
 from scipy import linalg as LA
 import scipy.optimize
 from watson import watson, watson_der, watson_hess
-
+from propane import propane, propane_der, propane_hess
 def stepNewton(f, x0, fprime, fhess, ave = 1e-5, maxiter = 2000):
     """
     my simple minimization algorithm, testing
@@ -24,7 +25,13 @@ def stepNewton(f, x0, fprime, fhess, ave = 1e-5, maxiter = 2000):
     print LA.norm(fpk)
     return f(xk)
 
+xs = np.array([0.31e-2 , 0.345e2, 0.65e-1, .859, .369e-1])
+xs = 10.01 * xs
+print propane(xs)
+print propane_der(xs)
+print propane_hess(xs)
 #print stepNewton(watson, np.zeros(6), watson_der, watson_hess)
+#print stepNewton(propane,xs,propane_der, propane_hess)
 
 def adjustedNewton(f, x0, fprime, fhess, u = 1e-4, ave = 1e-6, maxiter = 2000):
     """
@@ -92,6 +99,7 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     while (LA.norm(fpk) > ave and iter < maxiter):
         dk = - np.dot(hk,fpk)
         step = line_search(f, fprime, xk, dk, fpk)[0]
+        #step = line_search_BFGS(f, xk, dk, fpk, k)[0]
         if step == None:
             print "line search error"
         sk = dk * step
@@ -106,8 +114,8 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     print iter
     print f(xk)
     return f(xk)
-print BFGS(watson, np.zeros(9), watson_der, watson_hess)
-
+#print BFGS(watson, np.zeros(9), watson_der, watson_hess)
+#xs = [0.01,100,0.1,0.1,0.1]
 
 def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     """
@@ -138,9 +146,13 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     print f(xk)
     return f(xk)
 #print DFP(watson, np.zeros(9), watson_der, watson_hess, 1e-5)
-
-
-
+#print DFP(propane, xs, propane_der, propane_hess)
+#print adjustedNewton(propane,xs,propane_der, propane_hess)
+#print BFGS(propane,xs,propane_der, propane_hess)
+#print SR1(propane, xs, propane_der, propane_hess, 1e-14)
+res = scipy.optimize.minimize(propane, xs, method='BFGS',jac = propane_der,
+                              options={'disp':True})
+print (res.x)
 
 
 

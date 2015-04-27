@@ -6,6 +6,7 @@ from scipy import linalg as LA
 import scipy.optimize
 from watson import watson, watson_der, watson_hess
 from propane import propane, propane_der, propane_hess
+
 def line_search_wolfe12(f, fprime, xk, pk, gfk, old_fval, old_old_fval,
                          **kwargs):
     """
@@ -40,20 +41,24 @@ def stepNewton(f, x0, fprime, fhess, ave = 1e-5, maxiter = 2000):
     iter = 0
     fpk = fprime(x0)
     xk = x0
+    old_fval = f(x0)
+    old_old_fval = None
     print ave
     while (LA.norm(fpk) > ave and iter < maxiter):
         hess = fhess(xk)
         dk = LA.solve(hess, fpk * -1)
-        xk += dk * line_search_wolfe12(f, fprime, xk, dk, fpk)[0]
-        iter += 1
+        step, fc, gc, old_fval, old_old_fval, gfkp1 = \
+            line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)
+        xk += dk * step
         fpk = fprime(xk)
+        iter += 1
     print "iterations:"
     print iter
-    print LA.norm(fpk)
+    print xk
     return f(xk)
 
 xs = np.array([0.31e-2 , 0.345e2, 0.65e-1, .859, .369e-1])
-xs = 10.01 * xs
+xs = 5.01 * xs
 #print propane(xs)
 #print propane_der(xs)
 #print propane_hess(xs)
@@ -92,10 +97,14 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     iter = 0
     fpk = fprime(x0)
     xk = x0
-    hk = LA.inv(fhess(x0))
+    old_fval = f(x0)
+    old_old_fval = None
+    I = np.eye(len(x0), dtype=int)
+    hk = I
     while (LA.norm(fpk) > ave and iter < maxiter):
         dk = - np.dot(hk,fpk)
-        step = line_search_wolfe12(f, fprime, xk, dk, fpk)[0]
+        step, fc, gc, old_fval, old_old_fval, gfkp1 = \
+            line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)
         if step == None:
             print "line search error"
         sk = dk * step
@@ -103,12 +112,19 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         yk = fprime(xk) - fpk
         fpk += yk
         temp = sk - np.dot(hk,yk)
-        hk += (np.outer(temp, temp) /
-               np.dot(temp, yk))
+        try:
+            rhok = 1.0 / np.dot(temp, yk)
+        except ZeroDivisionError:
+            rhok = 1000.0
+            print "Divided by Zero, SR1"
+        if np.isinf(rhok):
+            rhok = 1000.0
+            print "Divided by Zero, SR1"
+        hk += (np.outer(temp, temp) * rhok)
         iter += 1
     print "iterations:"
     print iter
-    print f(xk)
+    print xk
     return f(xk)
 
 #print SR1(watson, np.zeros(9), watson_der, watson_hess)
@@ -123,13 +139,15 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     fpk = fprime(x0)
     xk = x0
     old_fval = f(x0)
+    #old_fval = None
     old_old_fval = None
     I = np.eye(len(x0), dtype=int)
     # Holy Shit! Initially inv(hessian!) now ok ! hahahhahaha
     hk = I
     while (LA.norm(fpk) > ave and iter < maxiter):
         dk = - np.dot(hk,fpk)
-        step = line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)[0]
+        step, fc, gc, old_fval, old_old_fval, gfkp1 = \
+            line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)
         #step = line_search_BFGS(f, xk, dk, fpk, k)[0]
         if step == None:
             print "line search error"
@@ -174,28 +192,57 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     iter = 0
     fpk = fprime(x0)
     xk = x0
-    hk = LA.inv(fhess(x0))
+    old_fval = f(x0)
+    old_old_fval = None
+    I = np.eye(len(x0), dtype=int)
+    hk = I
     while (LA.norm(fpk) > ave and iter < maxiter):
         dk = - np.dot(hk,fpk)
-        step = line_search_wolfe12(f, fprime, xk, dk, fpk)[0]
+        step, fc, gc, old_fval, old_old_fval, gfkp1 = \
+            line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)
         if step == None:
             print "line search error"
-        sk = dk * step
-        xk += sk
-        yk = fprime(xk) - fpk
-        fpk += yk
-        # update Hk, DFP formula
-        hk += (np.outer(sk,sk)/np.dot(sk,yk) -
-               np.dot(np.outer(np.dot(hk,yk), yk), hk) /
-               np.dot(yk, np.dot(hk,yk)))
+        #sk = dk * step
+        #xk += sk
+        #yk = fprime(xk) - fpk
+        #fpk += yk
+        xk1 = xk + step * dk
+        sk = xk1 - xk
+        xk = xk1
+        fpk1 = fprime(xk1)
+        yk = fpk1 - fpk
+        fpk = fpk1
+     # update Hk, DFP formula
+        try:
+            rho1 = 1.0 / np.dot(sk, yk)
+        except ZeroDivisionError:
+            rho1 = 1000.0
+            print "Divided by Zero,DFP "
+        try:
+            rho2 = 1.0 / np.dot(yk, np.dot(hk,yk))
+        except ZeroDivisionError:
+            rho2 = 1000.0
+            print "Divided by Zero,DFP "
+        if np.isinf(rho1):
+            rho1 = 1000.0
+            print "nan in DFP"
+        if np.isinf(rho2):
+            rho2 = 1000.0
+            print "nan in DFP"
+        #hk += (np.outer(sk,sk) * rho1 -
+               #np.outer(np.dot(hk,yk), np.dot(yk,hk)) * rho2)
+        hk += (np.outer(sk,sk) * rho1 -
+               np.dot(np.outer(np.dot(hk,yk),yk),hk) * rho2)
         iter += 1
     print "iterations:"
     print iter
+    print xk
     return f(xk)
-#print DFP(watson, np.zeros(9), watson_der, watson_hess, 1e-5)
-#print DFP(propane, xs, propane_der, propane_hess)
+#print DFP(watson, np.zeros(6), watson_der, watson_hess, 1e-5)
+print DFP(propane, xs, propane_der, propane_hess, maxiter = 2000)
+#print stepNewton(propane, xs, propane_der, propane_hess)
 #print adjustedNewton(propane,xs,propane_der, propane_hess)
-print BFGS(propane,xs,propane_der, propane_hess)
+#print BFGS(propane,xs,propane_der, propane_hess)
 #print SR1(propane, xs, propane_der, propane_hess, 1e-14)
 #res = scipy.optimize.minimize(propane, xs, method='BFGS',jac = propane_der,
                               #options={'disp':True})

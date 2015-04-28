@@ -57,8 +57,9 @@ def stepNewton(f, x0, fprime, fhess, ave = 1e-5, maxiter = 2000):
     print xk
     return f(xk)
 
+x0 = np.ones(5);
 xs = np.array([0.31e-2 , 0.345e2, 0.65e-1, .859, .369e-1])
-xs = 5.01 * xs
+xs = 6.1 * xs
 #print propane(xs)
 #print propane_der(xs)
 #print propane_hess(xs)
@@ -239,11 +240,11 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     print xk
     return f(xk)
 #print DFP(watson, np.zeros(6), watson_der, watson_hess, 1e-5)
-print DFP(propane, xs, propane_der, propane_hess, maxiter = 2000)
-#print stepNewton(propane, xs, propane_der, propane_hess)
+#print DFP(propane, x0, propane_der, propane_hess, maxiter = 2000)
+#print stepNewton(propane, x0, propane_der, propane_hess)
 #print adjustedNewton(propane,xs,propane_der, propane_hess)
-#print BFGS(propane,xs,propane_der, propane_hess)
-#print SR1(propane, xs, propane_der, propane_hess, 1e-14)
+print BFGS(propane,xs,propane_der, propane_hess)
+#print SR1(propane, x0, propane_der, propane_hess, 1e-14)
 #res = scipy.optimize.minimize(propane, xs, method='BFGS',jac = propane_der,
                               #options={'disp':True})
 #print (res.x)

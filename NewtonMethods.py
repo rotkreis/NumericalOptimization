@@ -6,7 +6,7 @@ from scipy import linalg as LA
 import scipy.optimize
 from watson import watson, watson_der, watson_hess
 from propane import propane, propane_der, propane_hess
-
+from cluster import cluster, cluster_der
 def line_search_wolfe12(f, fprime, xk, pk, gfk, old_fval, old_old_fval,
                          **kwargs):
     """
@@ -179,7 +179,10 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         iter += 1
     print "iterations:"
     print iter
+    print "xk = ",
     print xk
+    print "gk = ",
+    print fpk
     return f(xk)
 #print BFGS(watson, np.zeros(9), watson_der, watson_hess)
 #xs = [0.01,100,0.1,0.1,0.1]
@@ -192,6 +195,7 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     """
     iter = 0
     fpk = fprime(x0)
+    print fpk
     xk = x0
     old_fval = f(x0)
     old_old_fval = None
@@ -243,7 +247,7 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
 #print DFP(propane, x0, propane_der, propane_hess, maxiter = 2000)
 #print stepNewton(propane, x0, propane_der, propane_hess)
 #print adjustedNewton(propane,xs,propane_der, propane_hess)
-print BFGS(propane,xs,propane_der, propane_hess)
+#print BFGS(propane,xs,propane_der, propane_hess)
 #print SR1(propane, x0, propane_der, propane_hess, 1e-14)
 #res = scipy.optimize.minimize(propane, xs, method='BFGS',jac = propane_der,
                               #options={'disp':True})
@@ -254,14 +258,9 @@ print BFGS(propane,xs,propane_der, propane_hess)
 #print res.x
 #print x0
 #print BFGS(rosen, x0, rosen_der, rosen_hess)
-
-
-
-
-
-
-
-
+xclu=np.array([-5.0,0.0, 0.0,1.0, 1.0,2.0])
+print BFGS(cluster, xclu, cluster_der, None)
+#print DFP(cluster, xclu, cluster_der, None)
 
 
 

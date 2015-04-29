@@ -38,7 +38,3 @@ def cluster_der(x):
             sum += (u_der(x,k,j) * 2*(x[2*k+1] - x[2*j+1]))
         der[2*k+1] = sum
     return der
-x = [1,0.1,0.2,0.3,0.4,0.5]
-#print cluster(x)
-print cluster_der(x)
-

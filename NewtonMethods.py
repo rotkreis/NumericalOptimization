@@ -7,6 +7,8 @@ import scipy.optimize
 from watson import watson, watson_der, watson_hess
 from propane import propane, propane_der, propane_hess
 from cluster import cluster, cluster_der
+class _LineSearchError(RuntimeError):
+    pass
 def line_search_wolfe12(f, fprime, xk, pk, gfk, old_fval, old_old_fval,
                          **kwargs):
     """
@@ -30,7 +32,8 @@ def line_search_wolfe12(f, fprime, xk, pk, gfk, old_fval, old_old_fval,
                                  old_fval, old_old_fval)
 
     if ret[0] is None:
-        print "Wolfe12 Error"
+        raise _LineSearchError()
+
     return ret
 
 def stepNewton(f, x0, fprime, fhess, ave = 1e-5, maxiter = 2000):
@@ -43,28 +46,32 @@ def stepNewton(f, x0, fprime, fhess, ave = 1e-5, maxiter = 2000):
     xk = x0
     old_fval = f(x0)
     old_old_fval = None
-    print ave
+    warnflag = 0
     while (LA.norm(fpk) > ave and iter < maxiter):
         hess = fhess(xk)
         dk = LA.solve(hess, fpk * -1)
-        step, fc, gc, old_fval, old_old_fval, gfkp1 = \
-            line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)
+        try:
+            step, fc, gc, old_fval, old_old_fval, gfkp1 = \
+                line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)
+        except _LineSearchError:
+            warnflag = 2
+            break
         xk += dk * step
         fpk = fprime(xk)
         iter += 1
-    print "iterations:"
-    print iter
-    print xk
-    return f(xk)
+    if warnflag == 2:
+        print "Line search error in stepNewton at iteration: ",
+        print iter
+    else:
+        print "StepNewton Finished"
+        print "iterations:"
+        print iter
+        print 'gk = '
+        print fpk
+        print 'xk = '
+        print xk
 
-x0 = np.ones(5);
-xs = np.array([0.31e-2 , 0.345e2, 0.65e-1, .859, .369e-1])
-xs = 6.1 * xs
-#print propane(xs)
-#print propane_der(xs)
-#print propane_hess(xs)
-#print stepNewton(watson, np.zeros(6), watson_der, watson_hess)
-#print stepNewton(propane,xs,propane_der, propane_hess)
+#stepNewton(watson, np.zeros(9), watson_der, watson_hess, 1e-8)
 
 def adjustedNewton(f, x0, fprime, fhess, u = 1e-4, ave = 1e-6, maxiter = 2000):
     """
@@ -74,20 +81,43 @@ def adjustedNewton(f, x0, fprime, fhess, u = 1e-4, ave = 1e-6, maxiter = 2000):
     iter = 0
     fpk = fprime(x0)
     xk = x0
+    old_fval = f(x0)
+    old_old_fval = None
+    warnflag = 0
     while (LA.norm(fpk) > ave and iter < maxiter):
         hess = fhess(xk)
-        l = LA.cholesky(hess)
-        while any(np.diag(l) < 0 ):
-            hess += u * np.eye(len(x0),len(x0))
-            u *= 2
+        while True:
+            try:
+                LA.cholesky(hess)
+                break
+            except LA.LinAlgError:
+                hess += u * np.eye(len(x0),len(x0))
+                u *= 2
+        #while any(np.diag(l) < 0.01 ):
+            #hess += u * np.eye(len(x0),len(x0))
+            #u *= 2
         dk = LA.solve(hess, fpk * -1)
-        xk += dk * line_search_wolfe12(f, fprime, xk, dk, fpk)[0]
+        try:
+            step, fc, gc, old_fval, old_old_fval, gfkp1 = \
+                line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)
+        except _LineSearchError:
+            warnflag = 2
+            break
+        xk += dk * step
         iter += 1
         fpk = fprime(xk)
-    print "iterations:"
-    print iter
-    return f(xk)
-#print adjustedNewton(watson, np.zeros(9), watson_der, watson_hess, 1e-8)
+    if warnflag == 2:
+        print "Line search error in adjustedNewton at iteration: ",
+        print iter
+    else:
+        print "Finished"
+        print "iterations:"
+        print iter
+        print 'gk = '
+        print fpk
+        print 'xk = '
+        print xk
+#adjustedNewton(watson, np.zeros(9), watson_der, watson_hess, 1e-8)
 
 def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     """
@@ -102,12 +132,15 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     old_old_fval = None
     I = np.eye(len(x0), dtype=int)
     hk = I
+    warnflag = 0
     while (LA.norm(fpk) > ave and iter < maxiter):
         dk = - np.dot(hk,fpk)
-        step, fc, gc, old_fval, old_old_fval, gfkp1 = \
-            line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)
-        if step == None:
-            print "line search error"
+        try:
+            step, fc, gc, old_fval, old_old_fval, gfkp1 = \
+                line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)
+        except _LineSearchError:
+            warnflag = 2
+            break
         sk = dk * step
         xk += sk
         yk = fprime(xk) - fpk
@@ -123,12 +156,20 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
             print "Divided by Zero, SR1"
         hk += (np.outer(temp, temp) * rhok)
         iter += 1
-    print "iterations:"
-    print iter
-    print xk
-    return f(xk)
+    if warnflag == 2:
+        print "Line search error in SR1 at iteration: ",
+        print iter
+    else:
+        print "SR1 Finished"
+        print "iterations:"
+        print iter
+        print 'gk = '
+        print fpk
+        print 'xk = '
+        print xk
 
-#print SR1(watson, np.zeros(9), watson_der, watson_hess)
+
+#print SR1(watson, np.ones(9), watson_der, watson_hess)
 
 def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     """
@@ -145,26 +186,21 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     I = np.eye(len(x0), dtype=int)
     # Holy Shit! Initially inv(hessian!) now ok ! hahahhahaha
     hk = I
+    warnflag = 0
     while (LA.norm(fpk) > ave and iter < maxiter):
         dk = - np.dot(hk,fpk)
-        step, fc, gc, old_fval, old_old_fval, gfkp1 = \
-            line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)
-        #step = line_search_BFGS(f, xk, dk, fpk, k)[0]
-        if step == None:
-            print "line search error"
-        #sk = dk * step
-        #xk += sk
-        #yk = fprime(xk) - fpk
-        #fpk += yk
+        try:
+            step, fc, gc, old_fval, old_old_fval, gfkp1 = \
+                line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)
+        except _LineSearchError:
+            warnflag = 2
+            break
         xk1 = xk + step * dk
         sk = xk1 - xk
         xk = xk1
         fpk1 = fprime(xk1)
         yk = fpk1 - fpk
         fpk = fpk1
-        # update Hk, BFGS formula
-        #hk += ((1 + np.dot(yk, np.dot(hk,yk))/np.dot(yk,sk)) * np.outer(sk,sk) / np.dot(yk,sk)
-               #-(np.dot(np.outer(sk,yk),hk) + np.dot(hk,np.outer(yk,sk))) / np.dot(yk,sk))
         try:
             rhok = 1.0 / np.dot(sk,yk)
         except ZeroDivisionError:
@@ -177,15 +213,19 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         A2 = I - np.outer(yk, sk) * rhok
         hk = np.dot(A1, np.dot(hk,A2)) + rhok * np.outer(sk,sk)
         iter += 1
-    print "iterations:"
-    print iter
-    print "xk = ",
-    print xk
-    print "gk = ",
-    print fpk
-    return f(xk)
-#print BFGS(watson, np.zeros(9), watson_der, watson_hess)
-#xs = [0.01,100,0.1,0.1,0.1]
+    if warnflag == 2:
+        print "Line search error in BFGS at iteration: ",
+        print iter
+    else:
+        print "BFGS Finished"
+        print "iterations:"
+        print iter
+        print 'gk = '
+        print fpk
+        print 'xk = '
+        print xk
+
+#BFGS(watson, np.zeros(9), watson_der, watson_hess)
 
 def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     """
@@ -201,16 +241,15 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     old_old_fval = None
     I = np.eye(len(x0), dtype=int)
     hk = I
+    warnflag = 0
     while (LA.norm(fpk) > ave and iter < maxiter):
         dk = - np.dot(hk,fpk)
-        step, fc, gc, old_fval, old_old_fval, gfkp1 = \
-            line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)
-        if step == None:
-            print "line search error"
-        #sk = dk * step
-        #xk += sk
-        #yk = fprime(xk) - fpk
-        #fpk += yk
+        try:
+            step, fc, gc, old_fval, old_old_fval, gfkp1 = \
+                line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)
+        except _LineSearchError:
+            warnflag = 2
+            break
         xk1 = xk + step * dk
         sk = xk1 - xk
         xk = xk1
@@ -234,33 +273,22 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         if np.isinf(rho2):
             rho2 = 1000.0
             print "nan in DFP"
-        #hk += (np.outer(sk,sk) * rho1 -
-               #np.outer(np.dot(hk,yk), np.dot(yk,hk)) * rho2)
         hk += (np.outer(sk,sk) * rho1 -
                np.dot(np.outer(np.dot(hk,yk),yk),hk) * rho2)
         iter += 1
-    print "iterations:"
-    print iter
-    print xk
-    return f(xk)
-#print DFP(watson, np.zeros(6), watson_der, watson_hess, 1e-5)
-#print DFP(propane, x0, propane_der, propane_hess, maxiter = 2000)
-#print stepNewton(propane, x0, propane_der, propane_hess)
-#print adjustedNewton(propane,xs,propane_der, propane_hess)
-#print BFGS(propane,xs,propane_der, propane_hess)
-#print SR1(propane, x0, propane_der, propane_hess, 1e-14)
-#res = scipy.optimize.minimize(propane, xs, method='BFGS',jac = propane_der,
-                              #options={'disp':True})
-#print (res.x)
-#x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
-#res = scipy.optimize.minimize(rosen, x0, method='BFGS',jac = rosen_der,
-               #options={'disp':True})
-#print res.x
-#print x0
-#print BFGS(rosen, x0, rosen_der, rosen_hess)
-xclu=np.array([-5.0,0.0, 0.0,1.0, 1.0,2.0])
-print BFGS(cluster, xclu, cluster_der, None)
-#print DFP(cluster, xclu, cluster_der, None)
+    if warnflag == 2:
+        print "Line search error in DFP at iteration: ",
+        print iter
+    else:
+        print "DFP Finished"
+        print "iterations:"
+        print iter
+        print 'gk = '
+        print fpk
+        print 'xk = '
+        print xk
+#print DFP(watson, np.zeros(4), watson_der, watson_hess)
+
 
 
 

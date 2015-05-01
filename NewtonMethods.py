@@ -63,13 +63,7 @@ def stepNewton(f, x0, fprime, fhess, ave = 1e-5, maxiter = 2000):
         print "Line search error in stepNewton at iteration: ",
         print iter
     else:
-        print "StepNewton Finished"
-        print "iterations:"
-        print iter
-        print 'gk = '
-        print fpk
-        print 'xk = '
-        print xk
+        print_res("StepNewton Finished", iter, fpk, xk)
 
 #stepNewton(watson, np.zeros(9), watson_der, watson_hess, 1e-8)
 
@@ -110,13 +104,7 @@ def adjustedNewton(f, x0, fprime, fhess, u = 1e-4, ave = 1e-6, maxiter = 2000):
         print "Line search error in adjustedNewton at iteration: ",
         print iter
     else:
-        print "Finished"
-        print "iterations:"
-        print iter
-        print 'gk = '
-        print fpk
-        print 'xk = '
-        print xk
+        print_res("Adjusted Newton Finished", iter, fpk, xk)
 #adjustedNewton(watson, np.zeros(9), watson_der, watson_hess, 1e-8)
 
 def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
@@ -150,24 +138,24 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
             rhok = 1.0 / np.dot(temp, yk)
         except ZeroDivisionError:
             rhok = 1000.0
-            print "Divided by Zero, SR1"
+            if warnflag == 0:
+                warnflag = 1
+                print "Divided by Zero, SR1"
         if np.isinf(rhok):
             rhok = 1000.0
-            print "Divided by Zero, SR1"
+            if warnflag == 0:
+                warnflag = 1
+                print "Inf in SR1"
+        print rhok
         hk += (np.outer(temp, temp) * rhok)
         iter += 1
     if warnflag == 2:
         print "Line search error in SR1 at iteration: ",
         print iter
+    elif warnflag == 1:
+        print_res("SR1 questionable", iter, fpk, xk)
     else:
-        print "SR1 Finished"
-        print "iterations:"
-        print iter
-        print 'gk = '
-        print fpk
-        print 'xk = '
-        print xk
-
+        print_res("SR1 Finished",iter,fpk,xk)
 
 #print SR1(watson, np.ones(9), watson_der, watson_hess)
 
@@ -181,7 +169,6 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     fpk = fprime(x0)
     xk = x0
     old_fval = f(x0)
-    #old_fval = None
     old_old_fval = None
     I = np.eye(len(x0), dtype=int)
     # Holy Shit! Initially inv(hessian!) now ok ! hahahhahaha
@@ -217,14 +204,7 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         print "Line search error in BFGS at iteration: ",
         print iter
     else:
-        print "BFGS Finished"
-        print "iterations:"
-        print iter
-        print 'gk = '
-        print fpk
-        print 'xk = '
-        print xk
-
+        print_res("BFGS Finished",iter,fpk,xk)
 #BFGS(watson, np.zeros(9), watson_der, watson_hess)
 
 def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
@@ -235,7 +215,6 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     """
     iter = 0
     fpk = fprime(x0)
-    print fpk
     xk = x0
     old_fval = f(x0)
     old_old_fval = None
@@ -256,40 +235,90 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         fpk1 = fprime(xk1)
         yk = fpk1 - fpk
         fpk = fpk1
-     # update Hk, DFP formula
         try:
             rho1 = 1.0 / np.dot(sk, yk)
         except ZeroDivisionError:
             rho1 = 1000.0
-            print "Divided by Zero,DFP "
+            if warnflag == 0:
+                print "Divided by Zero,DFP at iteration ",
+                print iter
+                warnflag = 1
         try:
             rho2 = 1.0 / np.dot(yk, np.dot(hk,yk))
         except ZeroDivisionError:
             rho2 = 1000.0
-            print "Divided by Zero,DFP "
+            if warnflag == 0:
+                print "Divided by Zero,DFP at iteration ",
+                print iter
+                warnflag = 1
         if np.isinf(rho1):
             rho1 = 1000.0
-            print "nan in DFP"
+            if warnflag == 0:
+                print "Inf in DFP at iteration ",
+                print iter
+                warnflag = 1
         if np.isinf(rho2):
             rho2 = 1000.0
-            print "nan in DFP"
-        hk += (np.outer(sk,sk) * rho1 -
-               np.dot(np.outer(np.dot(hk,yk),yk),hk) * rho2)
+            if warnflag == 0:
+                print "Inf in DFP at iteration ",
+                print iter
+                warnflag = 1
+        if iter <= 1:
+            print "At Iteration :",
+            print iter
+            print "xk",
+            print xk
+            print "fpk",
+            print fpk
+            print "yk",
+            print yk
+            print "sk",
+            print sk
+            print "step",
+            print step
+            print "dk",
+            print dk
+            print "hk",
+            print hk
+            print "Hk update "
+            print np.outer(sk,sk) * rho1
+            print np.dot(np.outer(np.dot(hk,yk),yk),hk) * rho2
+            #print np.dot(hk,yk)
+            #print np.outer(np.dot(hk,yk),yk)
+            #print np.dot(np.outer(np.dot(hk,yk),yk),hk)
+            print " "
+            print (np.outer(sk,sk) * rho1 -
+                   np.dot(np.outer(np.dot(hk,yk),yk),hk) * rho2)
+            print hk
+            # holy shit. hk = a + hk correct
+            # but hk += a wrong! why??
+            hk = hk + (np.outer(sk,sk) * rho1 -
+                   np.dot(np.outer(np.dot(hk,yk),yk),hk) * rho2)
+            print hk
+            print " "
         iter += 1
     if warnflag == 2:
         print "Line search error in DFP at iteration: ",
         print iter
+    elif warnflag == 1:
+        print_res("DFP questionable", iter, fpk, xk)
     else:
-        print "DFP Finished"
-        print "iterations:"
-        print iter
-        print 'gk = '
-        print fpk
-        print 'xk = '
-        print xk
-#print DFP(watson, np.zeros(4), watson_der, watson_hess)
+        print_res("DFP Finished",iter,fpk,xk)
 
+def print_res(msg, iter, gk, xk):
+    print msg
+    print "Iterations:"
+    print iter
+    print 'gk = '
+    print gk
+    print 'xk = '
+    print xk
+    print " "
 
-
-
+#DFP(watson, np.ones(4), watson_der, watson_hess)
+x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
+#res = scipy.optimize.minimize(rosen, x0, method='BFGS',jac = rosen_der,
+               #options={'disp':True})
+#print res.x
+#DFP(rosen, x0, rosen_der, rosen_hess)
 

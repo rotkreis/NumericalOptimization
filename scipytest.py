@@ -18,12 +18,12 @@ from dipole import dipole, dipole_der, dipole_hess
             #r5*x3**2 + r6*x3 + x4**2 - 1)
     #return LA.norm(f,2)
 #def propane_der(x1,x2,x3,x4,x5,R,r5,r6,r7,r8,r9,r10):
-x0 = np.array([0,0, 0,1, 10,2])
-x1=np.array([.299, .186, -.0273, .0254, -.474, .474, -.892, 0.892])
-x1sol = np.array([-6.32e-3, 4.91e-1, -1.99e-3, 9.81e-5, 1.22e-1, -1.00e-1, -4.02, -2.07e-2])
-x2sol = np.array([-3.11e-1, -3.78e-1, 3.28e-1, -3.72e-1, -1.28, 2.49, 1.55, -1.38])
 #print scipy.optimize.check_grad(cluster, cluster_der,x0)
 #print scipy.optimize.approx_fprime(x0,cluster,1e-8)
+
+x1 = np.array([.299, .186, -.0273, .0254, -.474, .474, -.892, 0.892])
+x1sol = np.array([-6.32e-3, 4.91e-1, -1.99e-3, 9.81e-5, 1.22e-1, -1.00e-1, -4.02, -2.07e-2])
+x2sol = np.array([-3.11e-1, -3.78e-1, 3.28e-1, -3.72e-1, -1.28, 2.49, 1.55, -1.38])
 print scipy.optimize.check_grad(dipole, dipole_der, x1sol)
 print dipole_der(x1sol)
 res = scipy.optimize.minimize(dipole, x1, method='BFGS',jac = dipole_der,

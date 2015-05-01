@@ -24,22 +24,45 @@ x2sol = np.array([-3.11e-1, -3.78e-1, 3.28e-1, -3.72e-1, -1.28, 2.49, 1.55, -1.3
 
 # --------- Test---------
 x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
-#res = scipy.optimize.minimize(rosen, x0, method='BFGS',jac = rosen_der,
-               #options={'disp':True})
+x1 = [1.1, 0.9, 1.1, 1.2, 1.1]
+res = scipy.optimize.minimize(rosen, x0, method='BFGS',jac = rosen_der,
+               options={'disp':True})
 #print res.x
 #print x0
 #NewtonMethods.BFGS(rosen, x0, rosen_der, rosen_hess)
 #NewtonMethods.stepNewton(rosen, x0, rosen_der, rosen_hess)
-x1 = [1.1, 0.9, 1.1, 1.2, 1.3]
-NewtonMethods.SR1(rosen, x1, rosen_der, rosen_hess)
+#NewtonMethods.SR1(rosen, x1, rosen_der, rosen_hess)
 #NewtonMethods.DFP(rosen, x0, rosen_der, rosen_hess, maxiter = 1500)
 
 
 
 # -------- Cluster ---------
-#xclu=np.array([-5.0,0.0, 0.0,1.0, 1.0,2.0])
-#print NewtonMethods.BFGS(cluster, xclu, cluster_der, None)
-#print NewtonMethods.DFP(cluster, xclu, cluster_der, None)
+def clusterPoints(n):
+    m =int(np.sqrt(n / 4))
+    pts = np.zeros(2 * n)
+    h = 1
+    for i in range(0, m * m):
+        pts[2*i] = (i % m)*h + h
+        pts[2*i+1] = int(i / m)*h + h
+    for i in range(m * m, 2 * m * m):
+        j = i % m ** 2
+        pts[2*i] = -1 * ((j % m)*h + h)
+        pts[2*i+1] = int(j / m)*h + h
+    for i in range(2 * m**2, 3 * m**2):
+        j = i % m ** 2
+        pts[2*i] = -1 * ((j % m)*h + h)
+        pts[2*i+1] = -1 * (int(j / m)*h + h)
+    for i in range(3 * m**2, 4 * m**2):
+        j = i % m ** 2
+        pts[2*i] = (j % m)*h + h
+        pts[2*i+1] = -1 * (int(j / m)*h + h)
+    return pts
+xclu=np.array([-5.0,0.0, 0.0,1.0, 1.0,2.0])
+#print clusterPoints(36)
+xclu = clusterPoints(100)
+print xclu
+#NewtonMethods.DFP(cluster, clusterPoints(36), cluster_der, None)
+#NewtonMethods.DFP(cluster, xclu, cluster_der, None)
 
 
 

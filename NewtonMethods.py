@@ -7,8 +7,26 @@ import scipy.optimize
 from watson import watson, watson_der, watson_hess
 from propane import propane, propane_der, propane_hess
 from cluster import cluster, cluster_der
+
+def print_res(msg, iter, totalfc, totalgc,  gk, xk, fk):
+    print msg
+    print "Iterations: ",
+    print iter
+    print "Function Evaluations: ",
+    print totalfc
+    print "Gradient Evaluations: ",
+    print totalgc
+    print 'gk = '
+    print gk
+    print 'xk = '
+    print xk
+    print 'fk = '
+    print fk
+    print " "
+
 class _LineSearchError(RuntimeError):
     pass
+
 def line_search_wolfe12(f, fprime, xk, pk, gfk, old_fval, old_old_fval,
                          **kwargs):
     """
@@ -42,6 +60,8 @@ def stepNewton(f, x0, fprime, fhess, ave = 1e-5, maxiter = 2000):
     using newton Method
     """
     iter = 0
+    totalfc = 0
+    totalgc = 0
     fpk = fprime(x0)
     xk = x0
     old_fval = f(x0)
@@ -56,6 +76,8 @@ def stepNewton(f, x0, fprime, fhess, ave = 1e-5, maxiter = 2000):
         except _LineSearchError:
             warnflag = 2
             break
+        totalfc += fc
+        totalgc += gc
         xk = xk + dk * step
         fpk = fprime(xk)
         iter += 1
@@ -63,7 +85,7 @@ def stepNewton(f, x0, fprime, fhess, ave = 1e-5, maxiter = 2000):
         print "Line search error in stepNewton at iteration: ",
         print iter
     else:
-        print_res("StepNewton Finished", iter, fpk, xk)
+        print_res("StepNewton Finished", iter,totalfc, totalgc,  fpk, xk, f(xk))
 
 #stepNewton(watson, np.zeros(9), watson_der, watson_hess, 1e-8)
 
@@ -72,6 +94,8 @@ def adjustedNewton(f, x0, fprime, fhess, u = 1e-4, ave = 1e-6, maxiter = 2000):
     my simple minimization algorithm, testing
     using LM - newton Method
     """
+    totalfc = 0
+    totalgc = 0
     iter = 0
     fpk = fprime(x0)
     xk = x0
@@ -94,6 +118,8 @@ def adjustedNewton(f, x0, fprime, fhess, u = 1e-4, ave = 1e-6, maxiter = 2000):
         except _LineSearchError:
             warnflag = 2
             break
+        totalfc += fc
+        totalgc += gc
         xk = xk + dk * step
         iter += 1
         fpk = fprime(xk)
@@ -101,8 +127,8 @@ def adjustedNewton(f, x0, fprime, fhess, u = 1e-4, ave = 1e-6, maxiter = 2000):
         print "Line search error in adjustedNewton at iteration: ",
         print iter
     else:
-        print_res("Adjusted Newton Finished", iter, fpk, xk)
-#adjustedNewton(watson, np.zeros(9), watson_der, watson_hess, 1e-8)
+        print_res("Adjusted Newton Finished", iter,totalfc, totalgc,  fpk, xk, f(xk))
+adjustedNewton(watson, np.zeros(9), watson_der, watson_hess, 1e-8)
 
 def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     """
@@ -111,6 +137,8 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     possible error: the update of sk, yk, hk
     """
     iter = 0
+    totalfc = 0
+    totalgc = 0
     fpk = fprime(x0)
     xk = x0
     old_fval = f(x0)
@@ -126,6 +154,8 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         except _LineSearchError:
             warnflag = 2
             break
+        totalfc += fc
+        totalgc += gc
         sk = dk * step
         xk = xk + sk
         fpk1 = fprime(xk)
@@ -150,11 +180,11 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         print "Line search error in SR1 at iteration: ",
         print iter
     elif warnflag == 1:
-        print_res("SR1 questionable", iter, fpk, xk)
+        print_res("SR1 questionable", iter,totalfc, totalgc,  fpk, xk, f(xk))
     else:
-        print_res("SR1 Finished",iter,fpk,xk)
+        print_res("SR1 Finished",iter,totalfc, totalgc, fpk,xk, f(xk))
 
-#print SR1(watson, np.ones(9), watson_der, watson_hess)
+SR1(watson, np.ones(9), watson_der, watson_hess)
 
 def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     """
@@ -163,6 +193,8 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     possible error: the update of sk, yk, hk
     """
     iter = 0
+    totalfc = 0
+    totalgc = 0
     fpk = fprime(x0)
     xk = x0
     old_fval = f(x0)
@@ -179,6 +211,8 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         except _LineSearchError:
             warnflag = 2
             break
+        totalfc += fc
+        totalgc += gc
         xk1 = xk + step * dk
         sk = xk1 - xk
         xk = xk1
@@ -201,7 +235,7 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         print "Line search error in BFGS at iteration: ",
         print iter
     else:
-        print_res("BFGS Finished",iter,fpk,xk)
+        print_res("BFGS Finished",iter,totalfc, totalgc, fpk,xk, f(xk))
 #BFGS(watson, np.zeros(9), watson_der, watson_hess)
 
 def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
@@ -211,6 +245,8 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     possible error: the update of sk, yk, hk
     """
     iter = 0
+    totalfc = 0
+    totalgc = 0
     fpk = fprime(x0)
     xk = x0
     old_fval = f(x0)
@@ -226,6 +262,8 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         except _LineSearchError:
             warnflag = 2
             break
+        totalfc += fc
+        totalgc += gc
         xk1 = xk + step * dk
         sk = xk1 - xk
         xk = xk1
@@ -267,21 +305,11 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         print "Line search error in DFP at iteration: ",
         print iter
     elif warnflag == 1:
-        print_res("DFP questionable", iter, fpk, xk)
+        print_res("DFP questionable",iter,totalfc,totalgc, fpk, xk, f(xk))
     else:
-        print_res("DFP Finished",iter,fpk,xk)
+        print_res("DFP Finished",iter,totalfc, totalgc, fpk,xk, f(xk))
 
-def print_res(msg, iter, gk, xk):
-    print msg
-    print "Iterations:"
-    print iter
-    print 'gk = '
-    print gk
-    print 'xk = '
-    print xk
-    print " "
-
-#DFP(watson, np.ones(4), watson_der, watson_hess)
+DFP(watson, np.ones(4), watson_der, watson_hess)
 x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
 #res = scipy.optimize.minimize(rosen, x0, method='BFGS',jac = rosen_der,
                #options={'disp':True})

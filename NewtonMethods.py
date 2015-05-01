@@ -56,7 +56,7 @@ def stepNewton(f, x0, fprime, fhess, ave = 1e-5, maxiter = 2000):
         except _LineSearchError:
             warnflag = 2
             break
-        xk += dk * step
+        xk = xk + dk * step
         fpk = fprime(xk)
         iter += 1
     if warnflag == 2:
@@ -85,11 +85,8 @@ def adjustedNewton(f, x0, fprime, fhess, u = 1e-4, ave = 1e-6, maxiter = 2000):
                 LA.cholesky(hess)
                 break
             except LA.LinAlgError:
-                hess += u * np.eye(len(x0),len(x0))
+                hess = hess + u * np.eye(len(x0),len(x0))
                 u *= 2
-        #while any(np.diag(l) < 0.01 ):
-            #hess += u * np.eye(len(x0),len(x0))
-            #u *= 2
         dk = LA.solve(hess, fpk * -1)
         try:
             step, fc, gc, old_fval, old_old_fval, gfkp1 = \
@@ -97,7 +94,7 @@ def adjustedNewton(f, x0, fprime, fhess, u = 1e-4, ave = 1e-6, maxiter = 2000):
         except _LineSearchError:
             warnflag = 2
             break
-        xk += dk * step
+        xk = xk + dk * step
         iter += 1
         fpk = fprime(xk)
     if warnflag == 2:
@@ -130,9 +127,10 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
             warnflag = 2
             break
         sk = dk * step
-        xk += sk
-        yk = fprime(xk) - fpk
-        fpk += yk
+        xk = xk + sk
+        fpk1 = fprime(xk)
+        yk = fpk1 - fpk
+        fpk = fpk1
         temp = sk - np.dot(hk,yk)
         try:
             rhok = 1.0 / np.dot(temp, yk)
@@ -146,8 +144,7 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
             if warnflag == 0:
                 warnflag = 1
                 print "Inf in SR1"
-        print rhok
-        hk += (np.outer(temp, temp) * rhok)
+        hk = hk + (np.outer(temp, temp) * rhok)
         iter += 1
     if warnflag == 2:
         print "Line search error in SR1 at iteration: ",
@@ -218,7 +215,7 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     xk = x0
     old_fval = f(x0)
     old_old_fval = None
-    I = np.eye(len(x0), dtype=int)
+    I = np.eye(len(x0), dtype=float)
     hk = I
     warnflag = 0
     while (LA.norm(fpk) > ave and iter < maxiter):
@@ -263,39 +260,8 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
                 print "Inf in DFP at iteration ",
                 print iter
                 warnflag = 1
-        if iter <= 1:
-            print "At Iteration :",
-            print iter
-            print "xk",
-            print xk
-            print "fpk",
-            print fpk
-            print "yk",
-            print yk
-            print "sk",
-            print sk
-            print "step",
-            print step
-            print "dk",
-            print dk
-            print "hk",
-            print hk
-            print "Hk update "
-            print np.outer(sk,sk) * rho1
-            print np.dot(np.outer(np.dot(hk,yk),yk),hk) * rho2
-            #print np.dot(hk,yk)
-            #print np.outer(np.dot(hk,yk),yk)
-            #print np.dot(np.outer(np.dot(hk,yk),yk),hk)
-            print " "
-            print (np.outer(sk,sk) * rho1 -
+        hk = hk + (np.outer(sk,sk) * rho1 -
                    np.dot(np.outer(np.dot(hk,yk),yk),hk) * rho2)
-            print hk
-            # holy shit. hk = a + hk correct
-            # but hk += a wrong! why??
-            hk = hk + (np.outer(sk,sk) * rho1 -
-                   np.dot(np.outer(np.dot(hk,yk),yk),hk) * rho2)
-            print hk
-            print " "
         iter += 1
     if warnflag == 2:
         print "Line search error in DFP at iteration: ",

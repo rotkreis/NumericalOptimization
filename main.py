@@ -30,8 +30,9 @@ x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
 #print x0
 #NewtonMethods.BFGS(rosen, x0, rosen_der, rosen_hess)
 #NewtonMethods.stepNewton(rosen, x0, rosen_der, rosen_hess)
-#NewtonMethods.SR1(rosen, x0, rosen_der, rosen_hess)
-NewtonMethods.DFP(rosen, x0, rosen_der, rosen_hess)
+x1 = [1.1, 0.9, 1.1, 1.2, 1.3]
+NewtonMethods.SR1(rosen, x1, rosen_der, rosen_hess)
+#NewtonMethods.DFP(rosen, x0, rosen_der, rosen_hess, maxiter = 1500)
 
 
 

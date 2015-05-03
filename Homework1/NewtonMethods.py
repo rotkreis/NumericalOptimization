@@ -7,7 +7,7 @@ import scipy.optimize
 from watson import watson, watson_der, watson_hess
 from propane import propane, propane_der, propane_hess
 from cluster import cluster, cluster_der
-
+#hah
 def print_res(msg, iter, totalfc, totalgc,  gk, xk, fk):
     print msg
     print "Iterations: ",
@@ -202,7 +202,6 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         print_res("SR1 Finished",iter,totalfc, totalgc, fpk,xk, f(xk))
 
 #SR1(watson, np.ones(9), watson_der, watson_hess)
-
 def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     """
     Quasi-Newton: BFGS

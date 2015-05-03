@@ -74,10 +74,14 @@ def clusterPoints(n):
         pts[2*i+1] = -1 * (int(j / m)*h + h)
     return pts
 xclu = clusterPoints(196)
-print xclu
-NewtonMethods.SR1(cluster, xclu, cluster_der, None)
-NewtonMethods.BFGS(cluster, xclu, cluster_der, None)
-NewtonMethods.DFP(cluster, xclu, cluster_der, None)
+xclu = np.append(xclu,np.array([.5,.5, -.5, .5, -.5,-.5, .5, -.5]))
+res = scipy.optimize.minimize(cluster,xclu,method='BFGS', jac = cluster_der,
+                              options={'disp' : True})
+print res.x
+#print xclu
+#NewtonMethods.SR1(cluster, xclu, cluster_der, None)
+#NewtonMethods.BFGS(cluster, xclu, cluster_der, None)
+#NewtonMethods.DFP(cluster, xclu, cluster_der, None)
 #NewtonMethods.DFP(cluster, xclu, cluster_der, None)
 
 
@@ -91,6 +95,7 @@ NewtonMethods.DFP(cluster, xclu, cluster_der, None)
 #propane_hess(xs)
 #for i in [5, 10, 20]:
     #xs = i * xsol
+    #NewtonMethods.BFGS_Modified(propane, xs, propane_der,propane_hess)
     #NewtonMethods.adjustedNewton(propane, xs, propane_der, propane_hess)
     #NewtonMethods.stepNewton(propane,xs,propane_der, propane_hess)
     #NewtonMethods.DFP(propane, xs, propane_der, propane_hess, maxiter = 1000)

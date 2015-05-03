@@ -1,0 +1,39 @@
+StepNewton Finished
+Iterations:  18
+Function Evaluations:  19
+Gradient Evaluations:  19
+gk = 
+[ -3.63607595e-08  -8.80755898e-12  -4.91092011e-09  -4.25541077e-10
+   6.06805450e-09]
+xk = 
+[  3.11410489e-03   3.45978955e+01   6.50418060e-02   8.59378050e-01
+   3.69518591e-02]
+fk = 
+1.32118588618e-17
+ 
+StepNewton Finished
+Iterations:  17
+Function Evaluations:  17
+Gradient Evaluations:  17
+gk = 
+[ -7.02510942e-07  -1.50309083e-10  -9.11413473e-08  -7.68144105e-09
+   1.09421079e-07]
+xk = 
+[  3.11410555e-03   3.45978879e+01   6.50418129e-02   8.59378050e-01
+   3.69518591e-02]
+fk = 
+4.31890104102e-17
+ 
+StepNewton Finished
+Iterations:  24
+Function Evaluations:  26
+Gradient Evaluations:  26
+gk = 
+[ -2.95841839e-07  -5.95250320e-11  -3.76557471e-08  -3.13572024e-09
+   4.46450512e-08]
+xk = 
+[  3.11409467e-03   3.45980084e+01   6.50416999e-02   8.59378051e-01
+   3.69518592e-02]
+fk = 
+1.13251929557e-16
+ 

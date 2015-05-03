@@ -1,0 +1,75 @@
+Optimization terminated successfully.
+         Current function value: 0.000000
+         Iterations: 731
+         Function evaluations: 882
+         Gradient evaluations: 882
+[  4.91321356e-01  -6.32135013e-03   9.81531970e-05  -1.99815542e-03
+  -1.00315317e-01   1.22657168e-01  -2.07178328e-02  -4.02351743e+00]
+Line search error in adjustedNewton at iteration:  51
+
+Iterations:  51
+Function Evaluations:  461
+Gradient Evaluations:  424
+gk = 
+[ 0.00020509 -0.03463021 -0.00860967  0.00765238  0.0677624   0.03723667
+  0.01149571  0.09031421]
+xk = 
+[ 0.06491617  0.33846481 -0.07852678  0.05884118 -0.83350004  0.00712676
+ -1.18549524  0.45518488]
+fk = 
+0.0668130556194
+ 
+Line search error in stepNewton at iteration:  3
+
+Iterations:  3
+Function Evaluations:  8
+Gradient Evaluations:  8
+gk = 
+[ 0.42522385  0.324373   -0.01592965 -0.08332318 -0.04034623  0.11603638
+ -0.24934614  0.07612176]
+xk = 
+[ 0.20430579  0.08608906 -0.07322409  0.0410332  -0.73952953  0.27602978
+ -0.82873821  1.17028577]
+fk = 
+0.154757544534
+ 
+Reached max number of iterations
+Iterations:  1000
+Function Evaluations:  1010
+Gradient Evaluations:  1010
+gk = 
+[-0.00026095 -0.0001584  -0.00069307 -0.00079846  0.00054016 -0.00053838
+  0.00203998 -0.00182413]
+xk = 
+[ 2.3690591  -1.93450313  0.98145944 -0.99197841 -0.98642563 -1.05847832
+  0.27852342  0.36584265]
+fk = 
+0.0425498837946
+ 
+Line search error in SR1 at iteration:  10
+
+Iterations:  10
+Function Evaluations:  17
+Gradient Evaluations:  17
+gk = 
+[ 0.08054027  0.2829303   0.07965138 -0.00361735  0.0301865   0.02201819
+ -0.11203462  0.11205791]
+xk = 
+[ 0.24149595  0.17603959 -0.00409002 -0.00652216 -0.82744306 -0.25951573
+ -0.52197552  1.027115  ]
+fk = 
+0.0787136276596
+ 
+BFGS Finished
+Iterations:  814
+Function Evaluations:  978
+Gradient Evaluations:  978
+gk = 
+[ -2.37354123e-09  -8.04767212e-08  -1.53027588e-08   7.31014146e-08
+   3.30904643e-09  -3.43812206e-10   6.04008100e-09  -1.64301362e-10]
+xk = 
+[  4.91321348e-01  -6.32134905e-03   9.81493437e-05  -1.99815646e-03
+  -1.00315313e-01   1.22656966e-01  -2.07178448e-02  -4.02351759e+00]
+fk = 
+9.86811757316e-17
+ 

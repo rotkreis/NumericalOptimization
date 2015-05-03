@@ -1,0 +1,39 @@
+Reached max number of iterations
+Iterations:  1000
+Function Evaluations:  1009
+Gradient Evaluations:  1009
+gk = 
+[  5.49654675e-01   6.59305503e-05   5.21321221e-01  -5.38186434e-03
+   9.22779846e-02]
+xk = 
+[  4.87274234e-04   1.72004908e+02   2.93910183e-02   8.57389652e-01
+   3.69577234e-02]
+fk = 
+0.000897676111361
+ 
+Reached max number of iterations
+Iterations:  1000
+Function Evaluations:  1009
+Gradient Evaluations:  1009
+gk = 
+[  3.95694146e+02   1.37997654e-03   1.21345151e+01   1.11885377e+00
+  -6.07521080e+00]
+xk = 
+[ -2.17911112e-04   5.98374306e+02   1.53650257e-02   9.04838810e-01
+   4.00640640e-02]
+fk = 
+0.142631230975
+ 
+Reached max number of iterations
+Iterations:  1000
+Function Evaluations:  1016
+Gradient Evaluations:  1016
+gk = 
+[  1.50769035e+03   1.31028808e-02   2.09131862e+01   2.47743769e+00
+  -1.30145142e+01]
+xk = 
+[ -1.11161832e-03   1.56722271e+03   3.40261092e-03   8.67447156e-01
+   3.59197506e-02]
+fk = 
+4.5898740047
+ 

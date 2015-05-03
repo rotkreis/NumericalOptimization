@@ -21,6 +21,7 @@ def print_res(msg, iter, totalfc, totalgc,  gk, xk, fk):
     print 'xk = '
     print xk
     print 'fk = '
+    #print '%.6f' % fk
     print fk
     print " "
 
@@ -81,9 +82,14 @@ def stepNewton(f, x0, fprime, fhess, ave = 1e-5, maxiter = 2000):
         xk = xk + dk * step
         fpk = fprime(xk)
         iter += 1
+    if iter == maxiter:
+        warnflag = 3
     if warnflag == 2:
         print "Line search error in stepNewton at iteration: ",
         print iter
+        print_res("",iter,totalfc,totalgc, fpk, xk, f(xk))
+    elif warnflag == 3:
+        print_res("Reached max number of iterations", iter,totalfc, totalgc,  fpk, xk, f(xk))
     else:
         print_res("StepNewton Finished", iter,totalfc, totalgc,  fpk, xk, f(xk))
 
@@ -123,12 +129,17 @@ def adjustedNewton(f, x0, fprime, fhess, u = 1e-4, ave = 1e-6, maxiter = 2000):
         xk = xk + dk * step
         iter += 1
         fpk = fprime(xk)
+    if iter == maxiter:
+        warnflag = 3
     if warnflag == 2:
         print "Line search error in adjustedNewton at iteration: ",
         print iter
+        print_res("",iter,totalfc,totalgc, fpk, xk, f(xk))
+    elif warnflag == 3:
+        print_res("Reached max number of iterations", iter,totalfc, totalgc,  fpk, xk, f(xk))
     else:
         print_res("Adjusted Newton Finished", iter,totalfc, totalgc,  fpk, xk, f(xk))
-adjustedNewton(watson, np.zeros(9), watson_der, watson_hess, 1e-8)
+#adjustedNewton(watson, np.zeros(9), watson_der, watson_hess, 1e-8)
 
 def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     """
@@ -176,15 +187,21 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
                 print "Inf in SR1"
         hk = hk + (np.outer(temp, temp) * rhok)
         iter += 1
+
+    if iter == maxiter:
+        warnflag = 3
     if warnflag == 2:
         print "Line search error in SR1 at iteration: ",
         print iter
+        print_res("",iter,totalfc,totalgc, fpk, xk, f(xk))
     elif warnflag == 1:
         print_res("SR1 questionable", iter,totalfc, totalgc,  fpk, xk, f(xk))
+    elif warnflag == 3:
+        print_res("Reached max number of iterations", iter,totalfc, totalgc,  fpk, xk, f(xk))
     else:
         print_res("SR1 Finished",iter,totalfc, totalgc, fpk,xk, f(xk))
 
-SR1(watson, np.ones(9), watson_der, watson_hess)
+#SR1(watson, np.ones(9), watson_der, watson_hess)
 
 def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     """
@@ -231,9 +248,15 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         A2 = I - np.outer(yk, sk) * rhok
         hk = np.dot(A1, np.dot(hk,A2)) + rhok * np.outer(sk,sk)
         iter += 1
+
+    if iter == maxiter:
+        warnflag = 3
     if warnflag == 2:
         print "Line search error in BFGS at iteration: ",
         print iter
+        print_res("",iter,totalfc,totalgc, fpk, xk, f(xk))
+    elif warnflag == 3:
+        print_res("Reached max number of iterations", iter,totalfc, totalgc,  fpk, xk, f(xk))
     else:
         print_res("BFGS Finished",iter,totalfc, totalgc, fpk,xk, f(xk))
 #BFGS(watson, np.zeros(9), watson_der, watson_hess)
@@ -301,15 +324,21 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         hk = hk + (np.outer(sk,sk) * rho1 -
                    np.dot(np.outer(np.dot(hk,yk),yk),hk) * rho2)
         iter += 1
+
+    if iter == maxiter:
+        warnflag = 3
     if warnflag == 2:
         print "Line search error in DFP at iteration: ",
         print iter
+        print_res("",iter,totalfc,totalgc, fpk, xk, f(xk))
     elif warnflag == 1:
         print_res("DFP questionable",iter,totalfc,totalgc, fpk, xk, f(xk))
+    elif warnflag == 3:
+        print_res("Reached max number of iterations", iter,totalfc, totalgc,  fpk, xk, f(xk))
     else:
         print_res("DFP Finished",iter,totalfc, totalgc, fpk,xk, f(xk))
 
-DFP(watson, np.ones(4), watson_der, watson_hess)
+#DFP(watson, np.ones(4), watson_der, watson_hess)
 x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
 #res = scipy.optimize.minimize(rosen, x0, method='BFGS',jac = rosen_der,
                #options={'disp':True})

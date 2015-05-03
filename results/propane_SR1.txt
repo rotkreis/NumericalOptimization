@@ -1,0 +1,41 @@
+Line search error in SR1 at iteration:  21
+
+Iterations:  21
+Function Evaluations:  30
+Gradient Evaluations:  30
+gk = 
+[  2.22589037e-02   1.94122679e-05   1.93778658e-03  -7.51170274e-05
+   2.27977918e-04]
+xk = 
+[  4.64617481e-04   1.80436087e+02   2.80974490e-02   8.56533361e-01
+   3.68146684e-02]
+fk = 
+0.000899357908554
+ 
+Line search error in SR1 at iteration:  11
+
+Iterations:  11
+Function Evaluations:  20
+Gradient Evaluations:  20
+gk = 
+[  7.62927253e+03   4.71947531e-02   4.98375418e+02   8.19868692e+01
+   2.79670197e+02]
+xk = 
+[  1.07020774e-03   6.48724982e+02   4.14833023e-02   3.16130973e+00
+   5.61879498e-01]
+fk = 
+144.383086135
+ 
+Line search error in SR1 at iteration:  41
+
+Iterations:  41
+Function Evaluations:  57
+Gradient Evaluations:  57
+gk = 
+[ 10.19358957   0.0117477   11.48566259   0.01216645   0.03478915]
+xk = 
+[ -1.16450554e-03   1.58226974e+03   2.49333671e-03   6.77088216e-01
+   2.51380845e-02]
+fk = 
+4.58033163925
+ 

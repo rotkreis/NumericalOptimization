@@ -1,0 +1,40 @@
+Adjusted Newton Finished
+Iterations:  62
+Function Evaluations:  71
+Gradient Evaluations:  71
+gk = 
+[ -6.12795558e-10  -1.28627970e-13  -7.90273342e-11  -6.63496823e-12
+   9.44968548e-11]
+xk = 
+[  3.11410226e-03   3.45979246e+01   6.50417787e-02   8.59378051e-01
+   3.69518591e-02]
+fk = 
+3.43135361776e-23
+ 
+Adjusted Newton Finished
+Iterations:  64
+Function Evaluations:  79
+Gradient Evaluations:  79
+gk = 
+[ -4.28873242e-08  -9.01468657e-12  -5.53319456e-09  -4.64667696e-10
+   6.61815047e-09]
+xk = 
+[  3.11410208e-03   3.45979265e+01   6.50417768e-02   8.59378051e-01
+   3.69518592e-02]
+fk = 
+1.45720892398e-19
+ 
+Line search error in adjustedNewton at iteration:  58
+
+Iterations:  58
+Function Evaluations:  464
+Gradient Evaluations:  426
+gk = 
+[ -1.76999404e-01  -3.41160138e-03   1.59655814e+01   7.97606367e+01
+   1.21404924e+01]
+xk = 
+[ -4.00746642e-03  -6.80081611e+01   3.13443694e-02   2.55586745e+00
+   3.00575723e-01]
+fk = 
+47.172702208
+ 

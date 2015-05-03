@@ -1,0 +1,75 @@
+Warning: Maximum number of iterations has been exceeded.
+         Current function value: 1.333439
+         Iterations: 1600
+         Function evaluations: 1895
+         Gradient evaluations: 1895
+[ 1.16348358 -0.95112769  0.60585972 -1.04610868  0.17672104 -0.45604409
+ -5.12350233 -4.83533622]
+Line search error in stepNewton at iteration:  7
+
+Iterations:  7
+Function Evaluations:  9
+Gradient Evaluations:  9
+gk = 
+[  7.87378532  -3.96812223  68.6619474  -16.64478371  11.09815271
+  24.47602873  21.00198755 -38.12448348]
+xk = 
+[-0.28034721 -0.7741366   0.23254228 -2.90065181 -1.44332064  1.06955853
+  2.49439224 -0.85650419]
+fk = 
+17.2039194372
+ 
+Line search error in adjustedNewton at iteration:  50
+
+Iterations:  50
+Function Evaluations:  453
+Gradient Evaluations:  416
+gk = 
+[  34.15692755    7.61983782  -23.45505125  -43.23005353   11.67039817
+  134.26167432   -4.02139393  -36.70676019]
+xk = 
+[-0.08130758 -0.48452982  0.25250556 -3.54985145 -1.11960725  1.21644559
+  1.62128789 -0.9740303 ]
+fk = 
+59.9228943182
+ 
+Line search error in SR1 at iteration:  9
+
+Iterations:  9
+Function Evaluations:  24
+Gradient Evaluations:  24
+gk = 
+[ 25.55326275   3.01123823   3.28962526  15.27782725  31.91531633
+ -65.35382219 -15.67480083 -31.16631921]
+xk = 
+[-0.38862408 -1.87596071  0.59950487 -0.33051059 -1.55792198  0.88793143
+  1.99822799 -0.47562609]
+fk = 
+43.2010455013
+ 
+BFGS Finished
+Iterations:  819
+Function Evaluations:  960
+Gradient Evaluations:  960
+gk = 
+[  1.31577608e-08   6.00070519e-08   3.35880168e-08   4.04522246e-08
+   1.58884735e-08  -3.30445297e-08   1.80260593e-08  -7.93803903e-09]
+xk = 
+[-0.3116266  -0.37837339  0.32824423 -0.37224423 -1.2822271   2.49430031
+  1.55486588 -1.38463785]
+fk = 
+1.4275411076e-16
+ 
+Reached max number of iterations
+Iterations:  1000
+Function Evaluations:  1034
+Gradient Evaluations:  1034
+gk = 
+[ 83.58887653   6.01459179 -23.201556   -22.39011459  -7.12437378
+   9.51570075  -1.6095472   16.4498861 ]
+xk = 
+[-0.06206187 -0.58502186 -0.09364479 -0.31511568  0.23260711  2.36298355
+  3.64549894 -0.81787239]
+fk = 
+1.60270180988
+ 

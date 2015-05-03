@@ -1,0 +1,197 @@
+diff --git a/NewtonMethods.py b/NewtonMethods.py
+index 5adf3eb..8b556a6 100644
+--- a/NewtonMethods.py
++++ b/NewtonMethods.py
+@@ -63,13 +63,7 @@ def stepNewton(f, x0, fprime, fhess, ave = 1e-5, maxiter = 2000):
+         print "Line search error in stepNewton at iteration: ",
+         print iter
+     else:
+-        print "StepNewton Finished"
+-        print "iterations:"
+-        print iter
+-        print 'gk = '
+-        print fpk
+-        print 'xk = '
+-        print xk
++        print_res("StepNewton Finished", iter, fpk, xk)
+ 
+ #stepNewton(watson, np.zeros(9), watson_der, watson_hess, 1e-8)
+ 
+@@ -110,13 +104,7 @@ def adjustedNewton(f, x0, fprime, fhess, u = 1e-4, ave = 1e-6, maxiter = 2000):
+         print "Line search error in adjustedNewton at iteration: ",
+         print iter
+     else:
+-        print "Finished"
+-        print "iterations:"
+-        print iter
+-        print 'gk = '
+-        print fpk
+-        print 'xk = '
+-        print xk
++        print_res("Adjusted Newton Finished", iter, fpk, xk)
+ #adjustedNewton(watson, np.zeros(9), watson_der, watson_hess, 1e-8)
+ 
+ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
+@@ -150,24 +138,24 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
+             rhok = 1.0 / np.dot(temp, yk)
+         except ZeroDivisionError:
+             rhok = 1000.0
+-            print "Divided by Zero, SR1"
++            if warnflag == 0:
++                warnflag = 1
++                print "Divided by Zero, SR1"
+         if np.isinf(rhok):
+             rhok = 1000.0
+-            print "Divided by Zero, SR1"
++            if warnflag == 0:
++                warnflag = 1
++                print "Inf in SR1"
++        print rhok
+         hk += (np.outer(temp, temp) * rhok)
+         iter += 1
+     if warnflag == 2:
+         print "Line search error in SR1 at iteration: ",
+         print iter
++    elif warnflag == 1:
++        print_res("SR1 questionable", iter, fpk, xk)
+     else:
+-        print "SR1 Finished"
+-        print "iterations:"
+-        print iter
+-        print 'gk = '
+-        print fpk
+-        print 'xk = '
+-        print xk
+-
++        print_res("SR1 Finished",iter,fpk,xk)
+ 
+ #print SR1(watson, np.ones(9), watson_der, watson_hess)
+ 
+@@ -181,7 +169,6 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
+     fpk = fprime(x0)
+     xk = x0
+     old_fval = f(x0)
+-    #old_fval = None
+     old_old_fval = None
+     I = np.eye(len(x0), dtype=int)
+     # Holy Shit! Initially inv(hessian!) now ok ! hahahhahaha
+@@ -217,14 +204,7 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
+         print "Line search error in BFGS at iteration: ",
+         print iter
+     else:
+-        print "BFGS Finished"
+-        print "iterations:"
+-        print iter
+-        print 'gk = '
+-        print fpk
+-        print 'xk = '
+-        print xk
+-
++        print_res("BFGS Finished",iter,fpk,xk)
+ #BFGS(watson, np.zeros(9), watson_der, watson_hess)
+ 
+ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
+@@ -235,7 +215,6 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
+     """
+     iter = 0
+     fpk = fprime(x0)
+-    print fpk
+     xk = x0
+     old_fval = f(x0)
+     old_old_fval = None
+@@ -256,40 +235,59 @@ def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
+         fpk1 = fprime(xk1)
+         yk = fpk1 - fpk
+         fpk = fpk1
+-     # update Hk, DFP formula
+         try:
+             rho1 = 1.0 / np.dot(sk, yk)
+         except ZeroDivisionError:
+             rho1 = 1000.0
+-            print "Divided by Zero,DFP "
++            if warnflag == 0:
++                print "Divided by Zero,DFP at iteration ",
++                print iter
++                warnflag = 1
+         try:
+             rho2 = 1.0 / np.dot(yk, np.dot(hk,yk))
+         except ZeroDivisionError:
+             rho2 = 1000.0
+-            print "Divided by Zero,DFP "
++            if warnflag == 0:
++                print "Divided by Zero,DFP at iteration ",
++                print iter
++                warnflag = 1
+         if np.isinf(rho1):
+             rho1 = 1000.0
+-            print "nan in DFP"
++            if warnflag == 0:
++                print "Inf in DFP at iteration ",
++                print iter
++                warnflag = 1
+         if np.isinf(rho2):
+             rho2 = 1000.0
+-            print "nan in DFP"
++            if warnflag == 0:
++                print "Inf in DFP at iteration ",
++                print iter
++                warnflag = 1
+         hk += (np.outer(sk,sk) * rho1 -
+                np.dot(np.outer(np.dot(hk,yk),yk),hk) * rho2)
+         iter += 1
+     if warnflag == 2:
+         print "Line search error in DFP at iteration: ",
+         print iter
++    elif warnflag == 1:
++        print_res("DFP questionable", iter, fpk, xk)
+     else:
+-        print "DFP Finished"
+-        print "iterations:"
+-        print iter
+-        print 'gk = '
+-        print fpk
+-        print 'xk = '
+-        print xk
+-#print DFP(watson, np.zeros(4), watson_der, watson_hess)
+-
+-
++        print_res("DFP Finished",iter,fpk,xk)
+ 
++def print_res(msg, iter, gk, xk):
++    print msg
++    print "Iterations:"
++    print iter
++    print 'gk = '
++    print gk
++    print 'xk = '
++    print xk
++    print " "
+ 
++#DFP(watson, np.ones(4), watson_der, watson_hess)
++x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
++#res = scipy.optimize.minimize(rosen, x0, method='BFGS',jac = rosen_der,
++               #options={'disp':True})
++#print res.x
++#DFP(rosen, x0, rosen_der, rosen_hess)
+ 
+diff --git a/scipytest.py b/scipytest.py
+index 5fd85a6..d095d6d 100644
+--- a/scipytest.py
++++ b/scipytest.py
+@@ -18,12 +18,12 @@ from dipole import dipole, dipole_der, dipole_hess
+             #r5*x3**2 + r6*x3 + x4**2 - 1)
+     #return LA.norm(f,2)
+ #def propane_der(x1,x2,x3,x4,x5,R,r5,r6,r7,r8,r9,r10):
+-x0 = np.array([0,0, 0,1, 10,2])
+-x1=np.array([.299, .186, -.0273, .0254, -.474, .474, -.892, 0.892])
+-x1sol = np.array([-6.32e-3, 4.91e-1, -1.99e-3, 9.81e-5, 1.22e-1, -1.00e-1, -4.02, -2.07e-2])
+-x2sol = np.array([-3.11e-1, -3.78e-1, 3.28e-1, -3.72e-1, -1.28, 2.49, 1.55, -1.38])
+ #print scipy.optimize.check_grad(cluster, cluster_der,x0)
+ #print scipy.optimize.approx_fprime(x0,cluster,1e-8)
++
++x1 = np.array([.299, .186, -.0273, .0254, -.474, .474, -.892, 0.892])
++x1sol = np.array([-6.32e-3, 4.91e-1, -1.99e-3, 9.81e-5, 1.22e-1, -1.00e-1, -4.02, -2.07e-2])
++x2sol = np.array([-3.11e-1, -3.78e-1, 3.28e-1, -3.72e-1, -1.28, 2.49, 1.55, -1.38])
+ print scipy.optimize.check_grad(dipole, dipole_der, x1sol)
+ print dipole_der(x1sol)
+ res = scipy.optimize.minimize(dipole, x1, method='BFGS',jac = dipole_der,

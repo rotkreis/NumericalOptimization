@@ -51,7 +51,50 @@ def line_search_wolfe12(f, fprime, xk, pk, gfk, old_fval, old_old_fval,
         raise _LineSearchError()
 
     return ret
-def cgsolve(f, x0, fprime, method, ave = 1e-8, maxiter = 2000):
+
+def BBsolve(f, x0, fprime, method = 1, ave = 1e-8, maxiter = 3000):
+    gk = fprime(x0)
+    dk = -gk
+    xk = x0
+    totalfc = 0
+    totalgc = 0
+    count = 0
+    old_fval = f(x0)
+    old_old_fval = None
+    warnflag = 0
+    sk = 0
+    yk = 0
+    while (LA.norm(gk) > ave and count < maxiter):
+        if count == 0:
+            try:
+                step, fc, gc, old_fval, old_old_fval, gfkp1 = \
+                    line_search_wolfe12(f, fprime, xk, dk, gk, old_fval, old_old_fval)
+            except _LineSearchError:
+                warnflag = 2
+                break
+            totalfc += fc
+            totalgc += gc
+        else:
+            if method == 1:
+                step = np.dot(sk, sk) / np.dot(sk,yk)
+            else:
+                step = np.dot(sk,yk) / np.dot(yk,yk)
+        xk1 = xk + step * dk
+        gk1 = fprime(xk1)
+        totalgc += 1
+        yk = gk1 - gk
+        sk = xk1 - xk
+        gk = gk1
+        xk = xk1
+        dk = -gk1
+        count += 1
+    if warnflag == 2:
+        print_res("Method" + str(method) +" Line search error",count,totalfc,totalgc,gk,xk,f(xk))
+    elif count == maxiter:
+        print_res("Method" + str(method) +" Max Iteration Number",count,totalfc,totalgc,gk,xk,f(xk))
+    else:
+        print_res("Method" + str(method) + " Finished",count,totalfc,totalgc,gk,xk,f(xk))
+def cgsolve(f, x0, fprime, method, ave = 1e-8, maxiter = 3000):
     gk = fprime(x0)
     dk = -gk
     xk = x0
@@ -82,9 +125,11 @@ def cgsolve(f, x0, fprime, method, ave = 1e-8, maxiter = 2000):
             beta = np.abs(np.dot(gk1, gk1-gk) / np.dot(gk,gk))
         elif method == "CD":
             beta = -np.dot(gk1,gk1) / np.dot(dk,gk)
-        else:
-            # "DY"
+        elif method == "DY":
             beta = np.dot(gk1,gk1) / np.dot(dk, gk1-gk)
+        else:
+            print "No method"
+            break
         dk = - gk1 + beta * dk
         xk = xk1
         gk = gk1

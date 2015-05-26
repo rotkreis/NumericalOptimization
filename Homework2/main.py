@@ -1,6 +1,28 @@
 import numpy as np
 import scipy.optimize
 from cgmethods import cgsolve
+from cgmethods import BBsolve
+def s303(n):
+    def f(x):
+        sum = 0
+        s1= 0
+        for i in range(0, len(x)):
+            sum += x[i]**2
+            s1 += (i+1)*x[i]/2.0
+        sum += s1**2
+        sum += s1**4
+        return sum
+    return f
+def s303_der(n):
+    def f(x):
+        der = np.zeros(n)
+        sum = 0
+        for i in range(0, n):
+            sum += (i+1)*x[i]/2.0
+        for i in range(0, n):
+            der[i] = 2*x[i] + sum*(i+1) + 2*sum**3*(i+1)
+        return der
+    return f
 def gencube(n):
     def f(x):
         sum = 0
@@ -40,19 +62,26 @@ def gensin_der(n):
         return der
     return f
 
-n = 2
+n = 101
 #x0 =0.8 * np.ones(n)
-x0 = (4.712, -1)
-cgsolve(gensin(n),x0,gensin_der(n), "FR")
-cgsolve(gensin(n),x0,gensin_der(n), "PRP")
-cgsolve(gensin(n),x0,gensin_der(n), "PRP+")
-cgsolve(gensin(n),x0,gensin_der(n), "CD")
-cgsolve(gensin(n),x0,gensin_der(n), "")
+x0 = np.ones(n) * 0.001
+print s303_der(n)(x0)
+#cgsolve(gensin(n),x0,gensin_der(n), "FR")
+#cgsolve(gensin(n),x0,gensin_der(n), "PRP")
+#cgsolve(gensin(n),x0,gensin_der(n), "PRP+")
+#cgsolve(gensin(n),x0,gensin_der(n), "CD")
+#cgsolve(gensin(n),x0,gensin_der(n), "")
+#BBsolve(gencube(n),x0,gencube_der(n), method = 2)
+BBsolve(s303(n),x0, s303_der(n), method = 1)
 #cgsolve(gencube(n),x0,gencube_der(n), "FR")
 #cgsolve(gencube(n),x0,gencube_der(n), "PRP")
 #cgsolve(gencube(n),x0,gencube_der(n), "PRP+")
 #cgsolve(gencube(n),x0,gencube_der(n), "CD")
-#cgsolve(gencube(n),x0,gencube_der(n), "")
+#cgsolve(gencube(n),x0,gencube_der(n), "DY")
+res = scipy.optimize.minimize(s303(n), x0, method='BFGS',jac = s303_der(n),
+               options={'disp':True})
+print res.x
+
 #print scipy.optimize.check_grad(gencube(n), gencube_der(n), x0)
 #print scipy.optimize.approx_fprime(x0,gencube(n),1e-5)
 #der_n = gencube_der(n)

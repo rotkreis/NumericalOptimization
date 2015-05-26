@@ -62,17 +62,18 @@ def gensin_der(n):
         return der
     return f
 
-n = 101
+n = 81
 #x0 =0.8 * np.ones(n)
-x0 = np.ones(n) * 0.001
-print s303_der(n)(x0)
+x0 = np.ones(n) * 0.1
+#print s303_der(n)(x0)
 #cgsolve(gensin(n),x0,gensin_der(n), "FR")
 #cgsolve(gensin(n),x0,gensin_der(n), "PRP")
 #cgsolve(gensin(n),x0,gensin_der(n), "PRP+")
 #cgsolve(gensin(n),x0,gensin_der(n), "CD")
 #cgsolve(gensin(n),x0,gensin_der(n), "")
 #BBsolve(gencube(n),x0,gencube_der(n), method = 2)
-BBsolve(s303(n),x0, s303_der(n), method = 1)
+#BBsolve(s303(n),x0, s303_der(n), method = 1)
+cgsolve(s303(n),x0, s303_der(n), method = "FR")
 #cgsolve(gencube(n),x0,gencube_der(n), "FR")
 #cgsolve(gencube(n),x0,gencube_der(n), "PRP")
 #cgsolve(gencube(n),x0,gencube_der(n), "PRP+")

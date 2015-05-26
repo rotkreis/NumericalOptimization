@@ -1,3 +1,8 @@
+"""
+conjugate gradient methods
+and BB method
+"""
+
 from scipy.optimize.linesearch import line_search_BFGS, line_search_wolfe1
 from scipy.optimize.linesearch import line_search_wolfe2
 from scipy.optimize import rosen, rosen_der, rosen_hess
@@ -66,6 +71,8 @@ def BBsolve(f, x0, fprime, method = 1, ave = 1e-8, maxiter = 3000):
     yk = 0
     while (LA.norm(gk) > ave and count < maxiter):
         if count == 0:
+            if LA.norm(gk) > 1e5:
+                gk = gk / LA.norm(gk)
             try:
                 step, fc, gc, old_fval, old_old_fval, gfkp1 = \
                     line_search_wolfe12(f, fprime, xk, dk, gk, old_fval, old_old_fval)

@@ -160,7 +160,7 @@ def LMF(r, x0, jac, v0 = 1e-2, ave = 1e-8, maxiter = 1000):
         print_res("LMF Finished", count, totalfc, totalgc, gk, xk, f(xk))
 
 
-def GN(r, x0, jac, search = True, ave = 1e-8, maxiter = 1000, diag = False):
+def GN(r, x0, jac, search=True, ave=1e-5, maxiter=1000, diag=False, disp = True):
     """
     r in vector form
     """
@@ -182,6 +182,9 @@ def GN(r, x0, jac, search = True, ave = 1e-8, maxiter = 1000, diag = False):
     gk = fprime(xk)
     totalgc += 1
     while (LA.norm(fprime(xk)) > ave and count < maxiter):
+        # descent direction
+        if np.dot(gk, dk) >0:
+            dk = -dk
         if search == True:
             try:
                 step, fc, gc, old_fval, old_old_fval, gfkp1 = \
@@ -208,19 +211,20 @@ def GN(r, x0, jac, search = True, ave = 1e-8, maxiter = 1000, diag = False):
         totalgc += 1
     if count == maxiter:
         warnflag = 3
-    if warnflag == 2:
-        print "Line search error",
-        print " at iteration: ",
-        print count
-        print_res("Line search error in GN method at iteration:", count, totalfc,
-                  totalgc, gk, xk, f(xk))
-    elif warnflag == 3:
-        print_res("GN Max number of iterations", count, totalfc,
-                  totalgc, gk, xk, f(xk))
-    else:
-        print_res("GN Finished", count, totalfc,
-                  totalgc, gk, xk, f(xk))
-
+    if disp == True:
+        if warnflag == 2:
+            print "Line search error",
+            print " at iteration: ",
+            print count
+            print_res("Line search error in GN method at iteration:", count, totalfc,
+                    totalgc, gk, xk, f(xk))
+        elif warnflag == 3:
+            print_res("GN Max number of iterations", count, totalfc,
+                    totalgc, gk, xk, f(xk))
+        else:
+            print_res("GN Finished", count, totalfc,
+                    totalgc, gk, xk, f(xk))
+    return xk,f(xk),count, totalfc, totalgc, warnflag
 
 
 

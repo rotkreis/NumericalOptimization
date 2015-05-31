@@ -13,6 +13,10 @@ def r(x):
     res = np.zeros(33)
     for i in range(0,33):
         ti = 10 * (i)
+        if x[3] > 0.1:
+            x[3] = 1e-2
+        if x[4] > 0.1:
+            x[4] = 2e-2
         res[i] = y[i] - (x[0] + x[1]*np.exp(-ti*x[3]) + x[2]*np.exp(-ti*x[4]))
         if np.isinf(res[i]):
             res[i] = 1e12
@@ -46,12 +50,16 @@ def h(x):
         res += hess * r(x)[i]
     return res
 xs = np.array([5.0e-1, 1.5, -1, 1.0e-2, 2.0e-2])
-GN(r, xs, jac, search = True, ave = 1e-6)
-#LMF(r, xs, jac)
+xs =100* xs
+#print r(xs)
+#print jac(xs)
+GN(r, xs, jac, search = True, ave = 1e-8)
+#LMF(r, xs, jac, diag = True, ave = 1e-12)
 #DGW(r, xs, jac)
-DGW(r, xs, jac)
-DGW(r, xs, jac, h, method = "BFGS")
-#Dogleg(r, xs, jac)
-res = scipy.optimize.leastsq(r, xs, Dfun = jac)
-print res
+#DGW(r, xs, jac, h, method = "Biggs")
+#DGW(r, xs, jac, h, method = "BFGS")
+Dogleg(r, xs, jac)
+#DGW(r, xs, jac, h)
+#res = scipy.optimize.leastsq(r, xs, Dfun = jac)
+#print res
 #print h(xs)

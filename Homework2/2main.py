@@ -62,26 +62,33 @@ def gensin_der(n):
         return der
     return f
 
-n = 81
+n = 100
 #x0 =0.8 * np.ones(n)
-x0 = np.ones(n) * 0.1
-#print s303_der(n)(x0)
+x0 = np.ones(n) * -1
+x0[0] = 4.712389
 #cgsolve(gensin(n),x0,gensin_der(n), "FR")
 #cgsolve(gensin(n),x0,gensin_der(n), "PRP")
 #cgsolve(gensin(n),x0,gensin_der(n), "PRP+")
 #cgsolve(gensin(n),x0,gensin_der(n), "CD")
-#cgsolve(gensin(n),x0,gensin_der(n), "")
+#cgsolve(gensin(n),x0,gensin_der(n), "DY")
+BBsolve(gensin(n), x0, gensin_der(n), method = 2)
+res = scipy.optimize.minimize(gensin(n), x0, method = 'BFGS', jac = gensin_der(n),
+                              options={'disp':True})
+print res.x
+print gensin(n)(res.x)
+
+
 #BBsolve(gencube(n),x0,gencube_der(n), method = 2)
 #BBsolve(s303(n),x0, s303_der(n), method = 1)
-cgsolve(s303(n),x0, s303_der(n), method = "FR")
+#cgsolve(s303(n),x0, s303_der(n), method = "FR")
 #cgsolve(gencube(n),x0,gencube_der(n), "FR")
 #cgsolve(gencube(n),x0,gencube_der(n), "PRP")
 #cgsolve(gencube(n),x0,gencube_der(n), "PRP+")
 #cgsolve(gencube(n),x0,gencube_der(n), "CD")
 #cgsolve(gencube(n),x0,gencube_der(n), "DY")
-res = scipy.optimize.minimize(s303(n), x0, method='BFGS',jac = s303_der(n),
-               options={'disp':True})
-print res.x
+#res = scipy.optimize.minimize(s303(n), x0, method='BFGS',jac = s303_der(n),
+               #options={'disp':True})
+#print res.x
 
 #print scipy.optimize.check_grad(gencube(n), gencube_der(n), x0)
 #print scipy.optimize.approx_fprime(x0,gencube(n),1e-5)

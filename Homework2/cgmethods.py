@@ -57,7 +57,7 @@ def line_search_wolfe12(f, fprime, xk, pk, gfk, old_fval, old_old_fval,
 
     return ret
 
-def BBsolve(f, x0, fprime, method = 1, ave = 1e-8, maxiter = 3000):
+def BBsolve(f, x0, fprime, method = 1, ave = 1e-8, maxiter = 5000):
     gk = fprime(x0)
     dk = -gk
     xk = x0
@@ -101,7 +101,7 @@ def BBsolve(f, x0, fprime, method = 1, ave = 1e-8, maxiter = 3000):
         print_res("Method" + str(method) +" Max Iteration Number",count,totalfc,totalgc,gk,xk,f(xk))
     else:
         print_res("Method" + str(method) + " Finished",count,totalfc,totalgc,gk,xk,f(xk))
-def cgsolve(f, x0, fprime, method, ave = 1e-8, maxiter = 3000):
+def cgsolve(f, x0, fprime, method, ave = 1e-8, maxiter = 5000):
     gk = fprime(x0)
     dk = -gk
     xk = x0
@@ -112,6 +112,12 @@ def cgsolve(f, x0, fprime, method, ave = 1e-8, maxiter = 3000):
     old_old_fval = None
     warnflag = 0
     while (LA.norm(gk) > ave and count < maxiter):
+        if np.dot(dk,gk) > 0:
+            dk = - dk
+            print "Bad direction"
+        if np.dot(dk,gk) > -1e-5:
+            print "Bad direction"
+            dk = -gk
         try:
             step, fc, gc, old_fval, old_old_fval, gfkp1 = \
                 line_search_wolfe12(f, fprime, xk, dk, gk, old_fval, old_old_fval)
@@ -129,7 +135,7 @@ def cgsolve(f, x0, fprime, method, ave = 1e-8, maxiter = 3000):
         elif method =="PRP":
             beta = np.dot(gk1, gk1-gk) / np.dot(gk,gk)
         elif method =="PRP+":
-            beta = np.abs(np.dot(gk1, gk1-gk) / np.dot(gk,gk))
+            beta = np.max([0,np.dot(gk1, gk1-gk) / np.dot(gk,gk)])
         elif method == "CD":
             beta = -np.dot(gk1,gk1) / np.dot(dk,gk)
         elif method == "DY":
@@ -138,6 +144,8 @@ def cgsolve(f, x0, fprime, method, ave = 1e-8, maxiter = 3000):
             print "No method"
             break
         dk = - gk1 + beta * dk
+        if count % 100 == 0:
+            dk = -gk1
         xk = xk1
         gk = gk1
         count += 1

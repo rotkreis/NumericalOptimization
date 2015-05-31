@@ -22,7 +22,7 @@ def print_res(msg, iter, totalfc, totalgc,  gk, xk, fk):
     print 'xk = '
     print xk
     print 'fk = '
-    #print '%.6f' % fk
+    #print '%.4f' % fk
     print fk
     print " "
 
@@ -56,7 +56,7 @@ def line_search_wolfe12(f, fprime, xk, pk, gfk, old_fval, old_old_fval,
         raise _LineSearchError()
 
     return ret
-def Dogleg(r, x0, jac, delta0 = 10, ave = 1e-8, maxiter = 1000):
+def Dogleg(r, x0, jac, delta0 = 1e-1, ave = 1e-8, maxiter = 1000):
     """
     Trust Region Method
     """
@@ -71,10 +71,11 @@ def Dogleg(r, x0, jac, delta0 = 10, ave = 1e-8, maxiter = 1000):
     xk = x0
     deltak = delta0
     dim = x0.size
-    while (LA.norm(jac(xk)) > ave and count < maxiter):
+    while (LA.norm(fprime(xk)) > ave and count < maxiter):
         jack = jac(xk)
         jack_T = np.transpose(jack)
         rk = r(xk)
+        totalgc += 1
         dGNk = LA.solve(np.dot(jack_T,jack), -np.dot(jack_T, rk))
         dSDk = -np.dot(jack_T, rk)
         alphak = LA.norm(dSDk)**2 / LA.norm(np.dot(jack,dSDk))**2
@@ -101,6 +102,7 @@ def Dogleg(r, x0, jac, delta0 = 10, ave = 1e-8, maxiter = 1000):
                 #print deltak
         xk1 = xk + dk
         dfk = f(xk) - f(xk1)
+        totalfc += 2
         def qk(d):
             return .5 * LA.norm(np.dot(jack, d) + rk)**2
         dqk = qk(np.zeros(dim)) - qk(dk)
@@ -111,15 +113,22 @@ def Dogleg(r, x0, jac, delta0 = 10, ave = 1e-8, maxiter = 1000):
             deltak = 2 * deltak
         elif gammak < 0.25:
             deltak = 0.25 * deltak
-        if gammak > 0:
+        if gammak > 1e-6:
             xk = xk1
             count += 1
+        if count % 1000 == 0:
+            print "computing... ",
+            print count
+
+    if count == maxiter:
+        warnflag = 3
     if warnflag == 1:
         print_res("Dogleg error finding gamma", count, totalfc, totalgc, fprime(xk), xk, f(xk))
     else:
         print_res("Dogleg Finished", count, totalfc, totalgc, fprime(xk), xk, f(xk))
+    print LA.norm(fprime(xk))
 
-def LMF(r, x0, jac, v0 = 1e-2, ave = 1e-8, maxiter = 1000):
+def LMF(r, x0, jac, v0 = 1e-1, ave = 1e-8, maxiter = 1000, diag = False):
     def f(x):
         return .5 * np.dot(r(x),r(x))
     def fprime(x):
@@ -131,7 +140,7 @@ def LMF(r, x0, jac, v0 = 1e-2, ave = 1e-8, maxiter = 1000):
     xk = x0
     vk = v0
     dim = x0.size
-    while (LA.norm(jac(xk)) > ave and count < maxiter):
+    while (LA.norm(fprime(xk)) > ave and count < maxiter):
         jack = jac(xk)
         #totalgc += 1
         jack_T = np.transpose(jack)
@@ -153,14 +162,26 @@ def LMF(r, x0, jac, v0 = 1e-2, ave = 1e-8, maxiter = 1000):
             vk = vk / 2.0
         if gammak > 0:
             xk = xk + dk
-            count += 1
+        count += 1
+        if diag == True:
+            print count ,
+            print " ",
+            #print np.dot(dk,gk)
+            print LA.norm(fprime(xk))
+            #print f(xk)
+        if count % 1000 == 0:
+            print "computing... ",
+            print count
+    if count == maxiter:
+        warnflag = 3
     if warnflag == 1:
         print_res("LMF error finding gamma", count, totalfc, totalgc, gk, xk, f(xk))
     else:
         print_res("LMF Finished", count, totalfc, totalgc, gk, xk, f(xk))
+    print fprime(xk)
 
 
-def GN(r, x0, jac, search=True, ave=1e-5, maxiter=1000, diag=False, disp = True):
+def GN(r, x0, jac, search=True, ave=1e-8, maxiter=1000, diag=False, disp = True):
     """
     r in vector form
     """
@@ -183,15 +204,18 @@ def GN(r, x0, jac, search=True, ave=1e-5, maxiter=1000, diag=False, disp = True)
     totalgc += 1
     while (LA.norm(fprime(xk)) > ave and count < maxiter):
         # descent direction
-        if np.dot(gk, dk) >0:
+        if np.dot(gk, dk) > -1e-8:
             dk = -dk
+            print count
         if search == True:
             try:
                 step, fc, gc, old_fval, old_old_fval, gfkp1 = \
                     line_search_wolfe12(f, fprime, xk, dk, gk, old_fval, old_old_fval)
             except _LineSearchError:
                 warnflag = 2
-                break
+                #print np.dot(dk,gk)
+                step = 1
+                #break
             totalfc += fc
             totalgc += gc
         else:
@@ -203,8 +227,9 @@ def GN(r, x0, jac, search=True, ave=1e-5, maxiter=1000, diag=False, disp = True)
         rk = r(xk)
         if diag == True:
             print count
-            print rk
-            print jack
+            #print rk
+            #print jack
+            print f(xk)
         dk = LA.solve(np.dot(jack_T,jack), -np.dot(jack_T, rk))
         totalfc += 1
         gk = fprime(xk)

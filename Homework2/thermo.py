@@ -10,6 +10,7 @@ def r(x):
     res = np.zeros(16)
     for i in range(0,16):
         ti = 5 + 45*(i+1)
+        temp = ti + x[2]
         res[i] = x[0]*np.exp(x[1] / (ti+x[2])) - y[i]
     return res
 def jac(x):
@@ -25,8 +26,16 @@ def jac(x):
 xs = np.array([2.0e-2, 4.0e3, 2.5e2])
 x0 = xs
 
-#GN(r, xs, jac, search = True)
-#LMF(r, xs, jac)
+GN(r, xs, jac, search = True, diag = False)
+LMF(r, xs, jac, maxiter = 1000)
 Dogleg(r, xs, jac)
+def f(x):
+    return .5 * np.dot(r(x),r(x))
+def fprime(x):
+    return np.dot(np.transpose(jac(x)),r(x))
+#res = scipy.optimize.minimize(f, xs, method='BFGS',jac = fprime,
+               #options={'disp':True})
+#print res.x
+
 res = scipy.optimize.leastsq(r, xs, Dfun = jac)
 print res

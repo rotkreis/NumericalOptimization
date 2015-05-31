@@ -23,9 +23,15 @@ def jac(x):
         res[i][3] = nom / denom ** 2
     return res
 
-xs =10* np.array([2.5e-1, 3.9e-1, 4.15e-1, 3.9e-1])
-GN(r, xs, jac, search = True)
-LMF(r, xs, jac)
-Dogleg(r, xs, jac)
+xs = np.array([2.5e-1, 3.9e-1, 4.15e-1, 3.9e-1])
+xs = 10*xs
+#GN(r, xs, jac, search = True)
+#LMF(r, xs, jac)
+Dogleg(r, xs, jac, maxiter = 2000)
+Dogleg(r, xs, jac, maxiter = 4000)
+Dogleg(r, xs, jac, maxiter = 6000)
 res = scipy.optimize.leastsq(r, xs, Dfun = jac)
 print res
+x = res[0]
+x1 = x
+#print 0.5*np.dot(r(x1),r(x1))

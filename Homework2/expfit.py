@@ -48,8 +48,9 @@ def h(x):
 xs = np.array([5.0e-1, 1.5, -1, 1.0e-2, 2.0e-2])
 GN(r, xs, jac, search = True, ave = 1e-6)
 #LMF(r, xs, jac)
+#DGW(r, xs, jac)
 DGW(r, xs, jac)
-DGW(r, xs, jac, h)
+DGW(r, xs, jac, h, method = "BFGS")
 #Dogleg(r, xs, jac)
 res = scipy.optimize.leastsq(r, xs, Dfun = jac)
 print res

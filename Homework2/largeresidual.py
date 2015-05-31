@@ -54,7 +54,8 @@ def line_search_wolfe12(f, fprime, xk, pk, gfk, old_fval, old_old_fval,
 
     return ret
 
-def DGW(r, x0, jac, h = None, search = True, ave = 1e-8, maxiter = 1000, diag = False):
+def DGW(r, x0, jac, h = None, search = True, ave = 1e-5, maxiter = 1000,
+        diag = False, method = None):
     """
     r in vector form
     """
@@ -74,7 +75,7 @@ def DGW(r, x0, jac, h = None, search = True, ave = 1e-8, maxiter = 1000, diag = 
     rk = r(xk)
     dim = len(x0)
     if h == None:
-        bk = np.eye(dim) * 1
+        bk = np.eye(dim) * 1e-2
     else:
         bk = h(x0)
     # question, how to choose the initial value of bk?
@@ -84,10 +85,14 @@ def DGW(r, x0, jac, h = None, search = True, ave = 1e-8, maxiter = 1000, diag = 
     totalgc += 1
     while (LA.norm(fprime(xk)) > ave and count < maxiter):
         if search == True:
+            if np.dot(dk,gk) > 0:
+                dk = -dk
             try:
                 step, fc, gc, old_fval, old_old_fval, gfkp1 = \
                     line_search_wolfe12(f, fprime, xk, dk, gk, old_fval, old_old_fval)
             except _LineSearchError:
+                print "descend direction:",
+                print np.dot(dk,gk)
                 warnflag = 2
                 break
             totalfc += fc
@@ -107,9 +112,24 @@ def DGW(r, x0, jac, h = None, search = True, ave = 1e-8, maxiter = 1000, diag = 
         sk = step * dk
         yk = np.dot(jk1_T, rk1) - np.dot(jk_T, rk)
         ykhat = np.dot(jk1_T,rk1) - np.dot(jk_T, rk1)
-        A = np.outer(ykhat - np.dot(bk,sk), yk) + np.outer(yk, ykhat - np.dot(bk,sk))
-        B = np.dot(ykhat - np.dot(bk,sk),sk) * np.outer(yk,yk)
-        bk = bk + A / np.dot(yk,sk) - B / np.dot(yk,sk)**2
+        if method == None: # DGW method
+            A = np.outer(ykhat - np.dot(bk,sk), yk) + np.outer(yk, ykhat - np.dot(bk,sk))
+            B = np.dot(ykhat - np.dot(bk,sk),sk) * np.outer(yk,yk)
+            # gamma: adjust convergence
+            gamma0 = np.dot(sk,ykhat)/np.dot(sk, np.dot(bk,sk))
+            gamma = np.min([1, np.abs(gamma0)])
+            bk = gamma * bk
+            bk = bk + A / np.dot(yk,sk) - B / np.dot(yk,sk)**2
+        elif method == "Biggs":
+            #gamma = np.dot(rk1,rk1) / np.dot(rk,rk)
+            #bk = gamma * bk
+            A = ykhat - np.dot(bk,sk)
+            bk = bk + np.outer(A,A) / np.dot(A,sk)
+        elif method == "BFGS":
+            bk = bk + np.outer(ykhat,ykhat)/np.dot(ykhat,sk)
+            A = np.dot(bk,sk)
+            bk = bk - np.outer(A,A) / np.dot(sk,A)
+
         dk = LA.solve(np.dot(jk1_T, jk1) + bk, -np.dot(jk1_T, rk1))
         totalfc += 1
         gk = fprime(xk1)
@@ -134,4 +154,4 @@ def DGW(r, x0, jac, h = None, search = True, ave = 1e-8, maxiter = 1000, diag = 
     else:
         print_res("DGW Finished", count, totalfc,
                   totalgc, gk, xk, f(xk))
-    print LA.norm(fprime(xk))
+    #print LA.norm(fprime(xk))

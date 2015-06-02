@@ -62,16 +62,16 @@ def gensin_der(n):
         return der
     return f
 
-n = 100
+n = 10
 #x0 =0.8 * np.ones(n)
 x0 = np.ones(n) * -1
 x0[0] = 4.712389
 #cgsolve(gensin(n),x0,gensin_der(n), "FR")
 #cgsolve(gensin(n),x0,gensin_der(n), "PRP")
-#cgsolve(gensin(n),x0,gensin_der(n), "PRP+")
+cgsolve(gensin(n),x0,gensin_der(n), "PRP+", els = True)
 #cgsolve(gensin(n),x0,gensin_der(n), "CD")
 #cgsolve(gensin(n),x0,gensin_der(n), "DY")
-BBsolve(gensin(n), x0, gensin_der(n), method = 2)
+#BBsolve(gensin(n), x0, gensin_der(n), method = 2)
 res = scipy.optimize.minimize(gensin(n), x0, method = 'BFGS', jac = gensin_der(n),
                               options={'disp':True})
 print res.x

@@ -9,6 +9,7 @@ from scipy.optimize import rosen, rosen_der, rosen_hess
 import numpy as np
 from scipy import linalg as LA
 import scipy.optimize
+from els import goldensection
 def print_res(msg, iter, totalfc, totalgc,  gk, xk, fk):
     print msg
     print "Iterations: ",
@@ -101,7 +102,7 @@ def BBsolve(f, x0, fprime, method = 1, ave = 1e-8, maxiter = 5000):
         print_res("Method" + str(method) +" Max Iteration Number",count,totalfc,totalgc,gk,xk,f(xk))
     else:
         print_res("Method" + str(method) + " Finished",count,totalfc,totalgc,gk,xk,f(xk))
-def cgsolve(f, x0, fprime, method, ave = 1e-8, maxiter = 5000):
+def cgsolve(f, x0, fprime, method, els = False, ave = 1e-8, maxiter = 5000, diag = False):
     gk = fprime(x0)
     dk = -gk
     xk = x0
@@ -114,16 +115,21 @@ def cgsolve(f, x0, fprime, method, ave = 1e-8, maxiter = 5000):
     while (LA.norm(gk) > ave and count < maxiter):
         if np.dot(dk,gk) > 0:
             dk = - dk
-            print "Bad direction"
-        if np.dot(dk,gk) > -1e-5:
-            print "Bad direction"
+            #print "Bad direction"
+        if np.dot(dk,gk) > -1e-8:
+            #print "Bad direction"
             dk = -gk
-        try:
-            step, fc, gc, old_fval, old_old_fval, gfkp1 = \
-                line_search_wolfe12(f, fprime, xk, dk, gk, old_fval, old_old_fval)
-        except _LineSearchError:
-            warnflag = 2
-            break
+        if els == False:
+            try:
+                step, fc, gc, old_fval, old_old_fval, gfkp1 = \
+                    line_search_wolfe12(f, fprime, xk, dk, gk, old_fval, old_old_fval)
+            except _LineSearchError:
+                warnflag = 2
+                break
+        else:
+            step = goldensection(f, dk, xk)
+            fc = 0
+            gc = 0
         totalfc += fc
         totalgc += gc
         xk1 = xk + step * dk

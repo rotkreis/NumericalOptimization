@@ -54,7 +54,7 @@ def line_search_wolfe12(f, fprime, xk, pk, gfk, old_fval, old_old_fval,
 
     return ret
 
-def DGW(r, x0, jac, h = None, search = True, ave = 1e-5, maxiter = 1000,
+def DGW(r, x0, jac, h = None, search = True, ave = 1e-8, maxiter = 1000,
         diag = False, method = None):
     """
     r in vector form
@@ -83,6 +83,7 @@ def DGW(r, x0, jac, h = None, search = True, ave = 1e-5, maxiter = 1000,
     dk = LA.solve(np.dot(jk_T,jk)+bk , -np.dot(jk_T, rk))
     gk = fprime(xk)
     totalgc += 1
+    errcount = 0
     while (LA.norm(fprime(xk)) > ave and count < maxiter):
         if search == True:
             if np.dot(dk,gk) > 0:
@@ -95,6 +96,10 @@ def DGW(r, x0, jac, h = None, search = True, ave = 1e-5, maxiter = 1000,
                 print np.dot(dk,gk)
                 warnflag = 2
                 break
+                #step = 1e-1
+                #errcount = errcount + 1
+                #if errcount >= 5:
+                    #break
             totalfc += fc
             totalgc += gc
         else:
@@ -107,6 +112,9 @@ def DGW(r, x0, jac, h = None, search = True, ave = 1e-5, maxiter = 1000,
             print count
             print rk
             print jk
+            print xk
+            print totalfc
+            print f(xk)
 
         # modify bk
         sk = step * dk

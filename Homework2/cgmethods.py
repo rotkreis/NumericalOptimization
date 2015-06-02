@@ -72,11 +72,19 @@ def BBsolve(f, x0, fprime, method = 1, ave = 1e-8, maxiter = 5000):
     yk = 0
     while (LA.norm(gk) > ave and count < maxiter):
         if count == 0:
-            if LA.norm(gk) > 1e5:
-                gk = gk / LA.norm(gk)
+            #if LA.norm(gk) > 1e5:
+                #gk = gk / LA.norm(gk)
+            #if np.dot(dk,gk) > 0:
+                #dk = - dk
+                ##print "Bad direction"
+            #if np.dot(dk,gk) > -1e-8:
+                ##print "Bad direction"
+                #dk = -gk
+
             try:
                 step, fc, gc, old_fval, old_old_fval, gfkp1 = \
-                    line_search_wolfe12(f, fprime, xk, dk, gk, old_fval, old_old_fval)
+                    line_search_wolfe12(f, fprime, xk, dk, gk,
+                                        old_fval, old_old_fval)
             except _LineSearchError:
                 warnflag = 2
                 break
@@ -102,7 +110,7 @@ def BBsolve(f, x0, fprime, method = 1, ave = 1e-8, maxiter = 5000):
         print_res("Method" + str(method) +" Max Iteration Number",count,totalfc,totalgc,gk,xk,f(xk))
     else:
         print_res("Method" + str(method) + " Finished",count,totalfc,totalgc,gk,xk,f(xk))
-def cgsolve(f, x0, fprime, method, els = False, ave = 1e-8, maxiter = 5000, diag = False):
+def cgsolve(f, x0, fprime, method, els = False, ave = 1e-9, maxiter = 2000, diag = False):
     gk = fprime(x0)
     dk = -gk
     xk = x0
@@ -113,16 +121,18 @@ def cgsolve(f, x0, fprime, method, els = False, ave = 1e-8, maxiter = 5000, diag
     old_old_fval = None
     warnflag = 0
     while (LA.norm(gk) > ave and count < maxiter):
-        if np.dot(dk,gk) > 0:
-            dk = - dk
-            #print "Bad direction"
-        if np.dot(dk,gk) > -1e-8:
-            #print "Bad direction"
-            dk = -gk
+        #if np.dot(dk,gk) > 0:
+            #dk = - dk
+            ##print "Bad direction"
+        #if np.dot(dk,gk) > -1e-8:
+            ##print "Bad direction"
+            #dk = -gk
         if els == False:
             try:
+                # c2 is important!
                 step, fc, gc, old_fval, old_old_fval, gfkp1 = \
-                    line_search_wolfe12(f, fprime, xk, dk, gk, old_fval, old_old_fval)
+                    line_search_wolfe12(f, fprime, xk, dk, gk, old_fval,
+                                        old_old_fval, c2 = 0.4)
             except _LineSearchError:
                 warnflag = 2
                 break
@@ -152,9 +162,12 @@ def cgsolve(f, x0, fprime, method, els = False, ave = 1e-8, maxiter = 5000, diag
         dk = - gk1 + beta * dk
         if count % 100 == 0:
             dk = -gk1
+        if LA.norm(f(xk1)-f(xk)) < 1e-10:
+            break
         xk = xk1
         gk = gk1
         count += 1
+
     if count == maxiter:
         warnflag = 3
     if warnflag == 2:

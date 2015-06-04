@@ -4,10 +4,10 @@ from scipy.optimize import rosen, rosen_der, rosen_hess
 import numpy as np
 from scipy import linalg as LA
 import scipy.optimize
-from watson import watson, watson_der, watson_hess
-from propane import propane, propane_der, propane_hess
-from cluster import cluster, cluster_der
-
+#from watson import watson, watson_der, watson_hess
+#from propane import propane, propane_der, propane_hess
+#from cluster import cluster, cluster_der
+#hah
 def print_res(msg, iter, totalfc, totalgc,  gk, xk, fk):
     print msg
     print "Iterations: ",
@@ -202,7 +202,8 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         print_res("SR1 Finished",iter,totalfc, totalgc, fpk,xk, f(xk))
 
 #SR1(watson, np.ones(9), watson_der, watson_hess)
-def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
+def BFGS(f, x0, fprime, fhess = None, ave = 1e-6, maxiter = 1000,
+         diag = False, disp = False):
     """
     Quasi-Newton: BFGS
     fhess: inital hessian, converted to H0 for further compuatitions
@@ -215,7 +216,7 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
     xk = x0
     old_fval = f(x0)
     old_old_fval = None
-    I = np.eye(len(x0), dtype=int)
+    I = np.eye(len(x0))
     # Holy Shit! Initially inv(hessian!) now ok ! hahahhahaha
     hk = I
     warnflag = 0
@@ -248,16 +249,22 @@ def BFGS(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
         hk = np.dot(A1, np.dot(hk,A2)) + rhok * np.outer(sk,sk)
         iter += 1
 
-    if iter == maxiter:
-        warnflag = 3
-    if warnflag == 2:
-        print "Line search error in BFGS at iteration: ",
-        print iter
-        print_res("",iter,totalfc,totalgc, fpk, xk, f(xk))
-    elif warnflag == 3:
-        print_res("Reached max number of iterations", iter,totalfc, totalgc,  fpk, xk, f(xk))
-    else:
-        print_res("BFGS Finished",iter,totalfc, totalgc, fpk,xk, f(xk))
+    msg = " "
+    if disp == True:
+            if iter == maxiter:
+                warnflag = 3
+            if warnflag == 2:
+                msg = "Line search error in BFGS "
+                print "Line search error in BFGS at iteration: ",
+                print iter
+                print_res("",iter,totalfc,totalgc, fpk, xk, f(xk))
+            elif warnflag == 3:
+                msg = "BFGS max number of iterations"
+                print_res(msg, iter,totalfc, totalgc,  fpk, xk, f(xk))
+            else:
+                print_res("BFGS Finished",iter,totalfc, totalgc, fpk,xk, f(xk))
+
+    return xk,warnflag, msg, iter, totalfc, totalgc, f(xk)
 #BFGS(watson, np.zeros(9), watson_der, watson_hess)
 
 def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):

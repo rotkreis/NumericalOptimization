@@ -18,12 +18,12 @@ def print_res(msg, iter, totalfc, totalgc,  gk, xk, fk):
     print totalfc
     print "Gradient Evaluations: ",
     print totalgc
-    print 'gk = '
-    print gk
+    #print 'gk = '
+    #print gk
     print 'xk = '
     print xk
     print 'fk = '
-    #print '%.6f' % fk
+    ##print '%.6f' % fk
     print fk
     print " "
 
@@ -58,13 +58,14 @@ def line_search_wolfe12(f, fprime, xk, pk, gfk, old_fval, old_old_fval,
 
     return ret
 
-def BBsolve(f, x0, fprime, method = 1, ave = 1e-8, maxiter = 5000):
+def BBsolve(f, x0, fprime, method = 1, ave = 1e-8, maxiter = 2000):
     gk = fprime(x0)
     dk = -gk
     xk = x0
     totalfc = 0
     totalgc = 0
     count = 0
+    endc = 0
     old_fval = f(x0)
     old_old_fval = None
     warnflag = 0
@@ -80,7 +81,6 @@ def BBsolve(f, x0, fprime, method = 1, ave = 1e-8, maxiter = 5000):
             #if np.dot(dk,gk) > -1e-8:
                 ##print "Bad direction"
                 #dk = -gk
-
             try:
                 step, fc, gc, old_fval, old_old_fval, gfkp1 = \
                     line_search_wolfe12(f, fprime, xk, dk, gk,
@@ -95,15 +95,22 @@ def BBsolve(f, x0, fprime, method = 1, ave = 1e-8, maxiter = 5000):
                 step = np.dot(sk, sk) / np.dot(sk,yk)
             else:
                 step = np.dot(sk,yk) / np.dot(yk,yk)
+        #if count % 100 == 0:
+            #step = 1
         xk1 = xk + step * dk
         gk1 = fprime(xk1)
         totalgc += 1
         yk = gk1 - gk
         sk = xk1 - xk
         gk = gk1
+        if LA.norm(f(xk1)-f(xk)) < 1e-15:
+            endc += 1
+        if endc >= 5:
+            break
         xk = xk1
         dk = -gk1
         count += 1
+
     if warnflag == 2:
         print_res("Method" + str(method) +" Line search error",count,totalfc,totalgc,gk,xk,f(xk))
     elif count == maxiter:
@@ -121,20 +128,21 @@ def cgsolve(f, x0, fprime, method, els = False, ave = 1e-9, maxiter = 2000, diag
     old_old_fval = None
     warnflag = 0
     while (LA.norm(gk) > ave and count < maxiter):
-        #if np.dot(dk,gk) > 0:
-            #dk = - dk
-            ##print "Bad direction"
-        #if np.dot(dk,gk) > -1e-8:
-            ##print "Bad direction"
-            #dk = -gk
+        if np.dot(dk,gk) > 0:
+            dk = - dk
+            #print "Bad direction"
+        if np.dot(dk,gk) > -1e-8:
+            #print "Bad direction"
+            dk = -gk
         if els == False:
             try:
                 # c2 is important!
                 step, fc, gc, old_fval, old_old_fval, gfkp1 = \
                     line_search_wolfe12(f, fprime, xk, dk, gk, old_fval,
-                                        old_old_fval, c2 = 0.4)
+                                        old_old_fval, c2 = .2)
             except _LineSearchError:
                 warnflag = 2
+                #step = 1e-2
                 break
         else:
             step = goldensection(f, dk, xk)
@@ -160,10 +168,14 @@ def cgsolve(f, x0, fprime, method, els = False, ave = 1e-9, maxiter = 2000, diag
             print "No method"
             break
         dk = - gk1 + beta * dk
-        if count % 100 == 0:
-            dk = -gk1
-        if LA.norm(f(xk1)-f(xk)) < 1e-10:
+        #if count % 100 == 0:
+            #dk = -gk1
+        if LA.norm(f(xk1)-f(xk)) < 1e-8:
             break
+        if diag == True:
+            print count
+            print dk
+            print f(xk1) - f(xk)
         xk = xk1
         gk = gk1
         count += 1

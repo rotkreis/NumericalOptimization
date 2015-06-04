@@ -50,12 +50,12 @@ def h(x):
         res += hess * r(x)[i]
     return res
 xs = np.array([5.0e-1, 1.5, -1, 1.0e-2, 2.0e-2])
-xs =100* xs
+xs =10* xs
 #print r(xs)
 #print jac(xs)
-GN(r, xs, jac, search = True, ave = 1e-8)
+#GN(r, xs, jac, search = True, ave = 1e-8)
 #LMF(r, xs, jac, diag = True, ave = 1e-12)
-#DGW(r, xs, jac)
+DGW(r, xs, jac)
 #DGW(r, xs, jac, h, method = "Biggs")
 #DGW(r, xs, jac, h, method = "BFGS")
 Dogleg(r, xs, jac)

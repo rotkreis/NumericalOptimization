@@ -129,8 +129,8 @@ def DGW(r, x0, jac, h = None, search = True, ave = 1e-8, maxiter = 1000,
             bk = gamma * bk
             bk = bk + A / np.dot(yk,sk) - B / np.dot(yk,sk)**2
         elif method == "Biggs":
-            #gamma = np.dot(rk1,rk1) / np.dot(rk,rk)
-            #bk = gamma * bk
+            gamma = np.dot(rk1,rk1) / np.dot(rk,rk)
+            bk = gamma * bk
             A = ykhat - np.dot(bk,sk)
             bk = bk + np.outer(A,A) / np.dot(A,sk)
         elif method == "BFGS":
@@ -141,6 +141,8 @@ def DGW(r, x0, jac, h = None, search = True, ave = 1e-8, maxiter = 1000,
         dk = LA.solve(np.dot(jk1_T, jk1) + bk, -np.dot(jk1_T, rk1))
         totalfc += 1
         gk = fprime(xk1)
+        if LA.norm(f(xk1)-f(xk)) < ave:
+            break
         xk = xk1
         jk = jk1
         jk_T = jk1_T

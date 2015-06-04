@@ -25,7 +25,7 @@ def box_jac(n):
     return jac
 sol = np.array([1.0, 10.0, 1.0])
 xs = np.array([0, 10.0, 20.0])
-n = 50
+n = 10
 #xs = sol
 r = box(n)
 jac = box_jac(n)
@@ -37,9 +37,9 @@ def fprime(x):
 #GN(r, xs, jac)
 #LMF(r,xs,jac)
 #Dogleg(r, xs, jac)
-#DGW(r, xs, jac)
-#DGW(r, xs, jac, method = "Bigg")
-DGW(r, xs, jac, method = "BFGS", maxiter = 1000)
+DGW(r, xs, jac)
+#DGW(r, xs, jac, method = "Biggs")
+#DGW(r, xs, jac, method = "BFGS", maxiter = 1000)
 #res = scipy.optimize.leastsq(r, xs, Dfun = jac)
 #print res[0]
 #print f(res[0])

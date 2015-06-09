@@ -264,7 +264,8 @@ def BFGS(f, x0, fprime, fhess = None, ave = 1e-6, maxiter = 1000,
             else:
                 print_res("BFGS Finished",iter,totalfc, totalgc, fpk,xk, f(xk))
 
-    return xk,warnflag, msg, iter, totalfc, totalgc, f(xk)
+    return iter,totalfc, totalgc, fpk,xk, f(xk), warnflag, msg
+    #return xk,warnflag, msg, iter, totalfc, totalgc, f(xk), fprime(xk)
 #BFGS(watson, np.zeros(9), watson_der, watson_hess)
 
 def DFP(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):

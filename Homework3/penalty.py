@@ -1,7 +1,6 @@
 """
     Methods for Constrained Problems
     Two kinds of Penalty Functions
-    Specially for Least Squares
 """
 import numpy as np
 from scipy import linalg as LA
@@ -68,26 +67,62 @@ def BoundPenalty(f,x0,fprime,cons, cons_der,
     return xk,uk, penalty(xk,uk), count, f(xk), fprime(xk)
 
 
-def Lagrange(f,x0,fprime,ins,ins_der,sigma0,gamma0,
+def Lagrange(f,x0,fprime,ins,sigma0,gamma0,
              e0=1e-5,ave=1e-8,maxiter=1000,diag=False,disp=True):
-    "Implement only inequalities"
+    """Implement only inequalities"""
+
     def l(gamma,sigma):
         def temp(x):
             return f(x) + penalty(x,gamma,sigma)
         return temp
     def penalty(x,gamma,sigma):
-        return None # TEMP!
+        eta = gamma / sigma
+        sum = 0
+        n = len(ins(x))
+        #print "eta"
+        #print eta
+        #print gamma, sigma
+        for i in range(0,n):
+            sum += (np.min([ins(x)[i]-eta[i], 0])**2 - (eta[i])**2)
+        return 0.5 * sigma * sum
+    def lprime(gamma,sigma):
+        return fprime
+
+    xk = x0
+    sigma_k = sigma0 #number
+    gamma_k = gamma0 #vector
+    print gamma_k
+    eta_k = gamma_k / sigma_k
+    print eta_k
+    criterion = 1
+    count = 0
+    while criterion > ave and count <= maxiter:
     #Return FORMAT: iter,totalfc, totalgc, fpk,xk, f(xk), warnflag, msg
-    while LA.norm(ins(xk)) > ave and count <= maxiter:
-        res = BFGS(l(gamma_k,sigma_k), xk, lprime(gamma_k,sigma_k),ave=e0,disp=False)
+        eta_k = gamma_k / sigma_k
+        res = BFGS(l(gamma_k,sigma_k), xk,fprime,ave=ave,disp=False)
         xk = res[-4]
         warnflag = res[-2]
         msg = res[-1]
         if warnflag != 0:
             print msg
         #update gamma_k
-        sigma_k = 10 * sigma_k
+        for i in range(0,len(ins(xk))):
+            gamma_k[i] = - sigma_k * np.min([ins(xk)[i]-eta_k[i],0])
         count += 1
+        sum = 0
+        for i in range(0,len(ins(xk))):
+            sum += np.min([ins(xk)[i],eta_k[i]])**2
+        criterion = np.sqrt(sum)
+        sigma_k = 5 * sigma_k
+        if diag == True:
+            print "step",
+            print count
+            print "fk: ",
+            print f(xk)
+            print "xk: "
+            print xk
+
+
     if disp == True:
         print_res("Lagrange fin", res[0],res[1],res[2],res[3],res[4],res[5])
     return xk, sigma_k,gamma_k,  LA.norm(ins(xk)), count, f(xk), fprime(xk)

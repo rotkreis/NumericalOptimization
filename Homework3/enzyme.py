@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.optimize
-from leastsquares import GN, LMF, Dogleg
+#from leastsquares import GN, LMF, Dogleg
 u = np.array([
 4.0e0, 2.0e0, 1.0e0, 5.0e-1, 2.5e-1, 1.67e-1, 1.25e-1,
 1.0e-1, 8.33e-2, 7.14e-2, 6.25e-2
@@ -30,16 +30,26 @@ def ins_der(x):
     for i in range(0,len(res)):
         res[i] = 2*(x[i]-100)
     return res
-
+def cons(x):
+    return 100*np.ones(len(x)) - x
+def cons_der(x):
+    res = np.zeros(len(x))
+    for i in range(0,len(x)):
+        res[i] = 1.0 / (x[i] - 100)**2
+    return res
+def f(x):
+    return .5 * np.dot(r(x),r(x))
+def fprime(x):
+    return np.dot(np.transpose(jac(x)),r(x))
 xs = np.array([2.5e-1, 3.9e-1, 4.15e-1, 3.9e-1])
 xs = 10*xs
 #GN(r, xs, jac, search = True)
 #LMF(r, xs, jac)
-Dogleg(r, xs, jac, maxiter = 2000)
-Dogleg(r, xs, jac, maxiter = 4000)
-Dogleg(r, xs, jac, maxiter = 6000)
-res = scipy.optimize.leastsq(r, xs, Dfun = jac)
-print res
-x = res[0]
-x1 = x
-#print 0.5*np.dot(r(x1),r(x1))
+#Dogleg(r, xs, jac, maxiter = 2000)
+#Dogleg(r, xs, jac, maxiter = 4000)
+#Dogleg(r, xs, jac, maxiter = 6000)
+#res = scipy.optimize.leastsq(r, xs, Dfun = jac)
+#print res
+#x = res[0]
+#x1 = x
+##print 0.5*np.dot(r(x1),r(x1))

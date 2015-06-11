@@ -4,7 +4,7 @@ Thermo, including constraints for p, b
 
 import numpy as np
 import scipy.optimize
-from leastsquares import GN, LMF, Dogleg
+#from leastsquares import GN, LMF, Dogleg
 
 y = np.array([3.478e4, 2.861e4, 2.365e4, 1.963e4, 1.637e4, 1.372e4,
 1.154e4, 9.744e3, 8.261e3, 7.03e3, 6.005e3, 5.147e3, 4.427e3,
@@ -49,9 +49,9 @@ def cons_der(x):
 xs = np.array([2.0e-2, 4.0e3, 2.5e2])
 x0 = xs
 
-GN(r, xs, jac, search = True, diag = False)
-LMF(r, xs, jac, maxiter = 1000)
-Dogleg(r, xs, jac)
+#GN(r, xs, jac, search = True, diag = False)
+#LMF(r, xs, jac, maxiter = 1000)
+#Dogleg(r, xs, jac)
 def f(x):
     return .5 * np.dot(r(x),r(x))
 def fprime(x):
@@ -62,3 +62,4 @@ def fprime(x):
 
 res = scipy.optimize.leastsq(r, xs, Dfun = jac)
 print res
+print f(res[0])

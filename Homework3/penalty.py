@@ -52,7 +52,7 @@ def BoundPenalty(f,x0,fprime,cons, cons_der,
     count = 0
     while penalty(xk, uk) > ave and count <= maxiter:
         #return iter,totalfc, totalgc, fpk,xk, f(xk), warnflag, msg
-        res = BFGS(b(uk), xk, bprime(uk),  ave = ave, disp = False)
+        res = BFGS(b(uk), xk, bprime(uk),  ave = e0, disp = False)
         xk = res[-4]
         warnflag = res[-2]
         msg = res[-1]
@@ -127,16 +127,17 @@ def Lagrange(f,x0,fprime,ins,sigma0,gamma0,
         print_res("Lagrange fin", res[0],res[1],res[2],res[3],res[4],res[5])
     return xk, sigma_k,gamma_k,  LA.norm(ins(xk)), count, f(xk), fprime(xk)
 
-
-def ExPenalty(f,x0,fprime,eqns,eqns_der,ins,ins_der,
+def ExPenalty(f,x0,fprime,ins,ins_der,eqns=None,eqns_der=None,
               sigma0=1,e0=1e-5,ave=1e-8,maxiter=1000,
               diag=False, disp=True):
     def penalty(x,sigma):
         sum = 0
         n = len(eqns(x))
         for i in range(0,n):
-            sum += (eqns(x)[i])**2
-            sum += np.min([ins(x)[i],0])**2
+            if eqns != None:
+                sum += (eqns(x)[i])**2
+            if ins != None:
+                sum += np.min([ins(x)[i],0])**2
         return .5 * sigma * sum
     def p(sigma):
         def temp(x):

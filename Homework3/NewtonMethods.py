@@ -203,7 +203,7 @@ def SR1(f, x0, fprime, fhess, ave = 1e-6, maxiter = 1000):
 
 #SR1(watson, np.ones(9), watson_der, watson_hess)
 def BFGS(f, x0, fprime, fhess = None, ave = 1e-6, maxiter = 1000,
-         diag = False, disp = False):
+         diag = False, disp = False, wolfe2 = .25):
     """
     Quasi-Newton: BFGS
     fhess: inital hessian, converted to H0 for further compuatitions
@@ -224,7 +224,7 @@ def BFGS(f, x0, fprime, fhess = None, ave = 1e-6, maxiter = 1000,
         dk = - np.dot(hk,fpk)
         try:
             step, fc, gc, old_fval, old_old_fval, gfkp1 = \
-                line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval)
+                line_search_wolfe12(f, fprime, xk, dk, fpk, old_fval, old_old_fval, c2 = wolfe2)
         except _LineSearchError:
             warnflag = 2
             break

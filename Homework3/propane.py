@@ -13,15 +13,25 @@ r7 = k7 * p ** (-0.5)
 r8 = k8 / p
 r9 = k9 * p ** (-0.5)
 r10 = k10 / p
-def propane_cons(x):
+
+# cons : x_i >= 0
+def cons(x):
     return x
-def propane_cons_der(x):
+def cons_der(x):
     res = np.zeros(5)
     for i in range(0,5):
         res[i] = -1.0 / x[i]**2
     return res
+def ins(x):
+    return x
+def ins_der(x):
+    res = np.zeros(len(x))
+    for i in range(0,len(res)):
+        if x[i] <= 0:
+            res[i] =2 * x[i]
+    return res
 
-def propane(x):
+def f(x):
     x1 = x[0]
     x2 = x[1]
     x3 = x[2]
@@ -35,7 +45,7 @@ def propane(x):
           r5*x3**2 + r6*x3 + x4**2 - 1)
     return f1**2 + f2**2 + f3**2 + f4**2 + f5**2
 
-def propane_der(x):
+def fprime(x):
     x1 = x[0]
     x2 = x[1]
     x3 = x[2]

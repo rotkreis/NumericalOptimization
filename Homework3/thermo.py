@@ -33,7 +33,8 @@ def ins(x):
     return res
 def ins_der(x):
     res = np.zeros(len(x))
-    res[-1] = 2 * (x[-1] - 1e3)
+    if 1e3 - x[-1] <= 0:
+        res[-1] = 2 * (x[-1] - 1e3)
     return res
 
 # cons, for BoundPenalty

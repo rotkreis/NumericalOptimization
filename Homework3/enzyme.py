@@ -28,7 +28,11 @@ def ins(x):
 def ins_der(x):
     res = np.zeros(len(x))
     for i in range(0,len(res)):
-        res[i] = 2*(x[i]-100)
+        if 100 - x[i] > 0:
+            res[i] = 0
+        else:
+            res[i] = 2*(x[i]-100)
+            #print res[i]
     return res
 def cons(x):
     return 100*np.ones(len(x)) - x
